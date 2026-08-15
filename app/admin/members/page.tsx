@@ -80,6 +80,7 @@ export default function MembersPage() {
               <th className="p-3">पिता का नाम</th>
               <th className="p-3">गाँव</th>
               <th className="p-3">मोबाइल</th>
+              <th className="p-3">फोटो</th>
               <th className="p-3">व्यवसाय</th>
               <th className="p-3">Status</th>
               <th className="p-3">Action</th>
@@ -110,13 +111,21 @@ export default function MembersPage() {
                   {m.village}
                 </td>
 
-                <td className="p-3">
-                  {m.mobile}
-                </td>
+                <td className="p-3">{m.mobile}</td>
 
-                <td className="p-3">
-                  {m.profession}
-                </td>
+<td className="p-3">
+  {m.photo_url ? (
+    <img
+      src={m.photo_url}
+      alt="Member"
+      className="w-14 h-14 rounded-full object-cover mx-auto"
+    />
+  ) : (
+    "No Photo"
+  )}
+</td>
+
+<td className="p-3">{m.profession}</td>
 
                 <td className="p-3">
 

@@ -1,5 +1,6 @@
 "use client";
 
+import QRCode from "react-qr-code";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
@@ -50,130 +51,188 @@ function CertificateContent() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-200 flex justify-center items-center p-6">
+    <main className="min-h-screen bg-slate-200 flex justify-center items-center p-6">
+
       <div
-        className="bg-white border-[12px] border-yellow-500 shadow-2xl relative overflow-hidden"
+        className="relative bg-white border-[10px] border-yellow-500 rounded-[30px] shadow-2xl overflow-hidden"
         style={{
-          width: "1123px",
-          height: "794px",
+          width: "1150px",
+          height: "750px",
         }}
       >
+
         {/* Watermark */}
         <img
           src="/logo.png"
           alt="Watermark"
-          className="absolute opacity-10 w-[450px] h-[450px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          className="absolute opacity-10 w-[500px] h-[500px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         />
 
-        {/* Decorative Border */}
-        <div className="absolute inset-4 border-4 border-yellow-400 rounded-2xl"></div>
+        {/* Print + QR */}
+        <div className="absolute top-6 right-6 z-50 print:hidden">
+
+          <button
+            onClick={() => window.print()}
+            className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold"
+          >
+            🖨️ Print ID Card
+          </button>
+
+          <div className="mt-4 bg-white p-3 rounded-xl shadow">
+
+            <QRCode
+              value={`https://kpvp.vercel.app/certificate?id=${member.id}`}
+              size={120}
+            />
+
+            
+
+          </div>
+
+        </div>
 
         {/* Header */}
-        <div className="relative z-10 text-center pt-8">
-          <img
-            src="/logo.png"
-            alt="Logo"
-            className="mx-auto w-28 h-28"
-          />
+        <div className="bg-gradient-to-r from-yellow-500 via-orange-500 to-orange-600 h-56 relative">
 
-          <h1
-            className="text-5xl font-bold text-red-700 mt-3"
-            style={{ fontFamily: "Georgia, serif" }}
-          >
-            कांटा परगना विकास परिषद
-          </h1>
+          <div className="absolute left-8 top-5 w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-xl bg-white">
+  <img
+    src="/logo.png"
+    alt="Logo"
+    className="w-full h-full object-cover"
+  />
+</div>
 
-          <p className="text-2xl text-blue-800 font-semibold mt-2">
-            मारवाड़ मीणा समाज कांटा परगना
-          </p>
+          <div className="text-center pt-8">
 
-          <div className="inline-block mt-4 px-10 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full shadow-lg">
-            <h2 className="text-3xl font-bold text-white">
-              सदस्यता प्रमाण पत्र
+            <h1 className="text-6xl font-bold text-white">
+              कांटा परगना विकास परिषद
+            </h1>
+
+            <p className="text-2xl text-white mt-3">
+              मारवाड़ मीणा समाज कांटा परगना
+            </p>
+
+            <h2 className="text-3xl font-bold text-white mt-4">
+              MEMBER ID CARD
             </h2>
-          </div>
-        </div>
 
-        {/* Main Certificate Text */}
-        <div className="relative z-10 px-24 mt-10">
-          <p
-            className="text-center text-gray-800 leading-[60px]"
-            style={{
-              fontFamily: "'Tiro Devanagari Hindi', serif",
-              fontSize: "28px",
-            }}
-          >
-            यह प्रमाणित किया जाता है कि
-
-            <span className="text-blue-700 font-bold text-[40px]">
-              {" "}
-              {member.member_name}
-            </span>
-
-            <br />
-
-            पिता / पति
-
-            <span className="text-purple-700 font-bold text-[40px]">
-              {" "}
-              {member.father_name}
-            </span>
-
-            <br />
-
-            ग्राम
-
-            <span className="text-green-700 font-bold text-[40px]">
-              {" "}
-              {member.village}
-            </span>
-
-            <br />
-
-            मारवाड़ मीणा समाज कांटा परगना के प्रतिष्ठित सदस्य हैं तथा
-            कांटा परगना विकास परिषद में विधिवत पंजीकृत सदस्य के रूप में
-            सम्मानपूर्वक मान्यता प्राप्त है।
-          </p>
-        </div>
-
-        {/* Certificate Number */}
-        <div className="absolute bottom-32 left-0 right-0 text-center">
-          <p className="text-lg font-semibold text-gray-700">
-            Certificate No :
-            <span className="text-blue-700">
-              {" "}
-              KPVP-CERT-{member.id}
-            </span>
-          </p>
-
-          <p className="text-lg font-semibold text-gray-700 mt-1">
-            Registration No :
-            <span className="text-green-700">
-              {" "}
-              {member.registration_no}
-            </span>
-          </p>
-        </div>
-
-        {/* Signatures */}
-        <div className="absolute bottom-10 left-20 right-20 flex justify-between">
-          <div className="text-center">
-            <div className="border-t-2 border-black w-56"></div>
-
-            <p className="mt-2 text-2xl font-bold text-blue-800">
-              सचिव
-            </p>
           </div>
 
-          <div className="text-center">
-            <div className="border-t-2 border-black w-56"></div>
-
-            <p className="mt-2 text-2xl font-bold text-red-800">
-              अध्यक्ष
-            </p>
-          </div>
         </div>
+
+        {/* Content */}
+        <div className="flex px-10 py-8">
+
+          {/* Left */}
+          <div className="w-[35%] text-center">
+
+            <img
+              src={
+                member.photo_url
+                  ? member.photo_url
+                  : "/default-user.png"
+              }
+              alt="Member"
+              className="w-64 h-72 object-cover border-4 border-yellow-500 rounded-2xl mx-auto"
+            />
+
+            <h2 className="mt-5 text-5xl font-extrabold text-blue-700 tracking-wide">
+            {member.member_name}
+            </h2>
+
+       
+
+          </div>
+
+          {/* Right */}
+          <div className="w-[65%] pl-10">
+
+            <table className="w-full text-3xl">
+
+              <tbody>
+
+                <tr>
+                  <td className="font-bold py-4 w-72">
+                    पिता / पति
+                  </td>
+                  <td>
+                    :
+                  </td>
+                  <td>
+                    {member.husband_name ||
+                      member.father_name}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td className="font-bold py-4">
+                    ग्राम
+                  </td>
+                  <td>
+                    :
+                  </td>
+                  <td>
+                    {member.village}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td className="font-bold py-4">
+                    मोबाइल
+                  </td>
+                  <td>
+                    :
+                  </td>
+                  <td>
+                    {member.mobile}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td className="font-bold py-4">
+                    व्यवसाय
+                  </td>
+                  <td>
+                    :
+                  </td>
+                  <td>
+                    {member.profession || "-"}
+                  </td>
+                </tr>
+
+                <tr>
+  <td className="font-bold py-4">
+    Verification
+  </td>
+  <td>:</td>
+  <td>
+    <span className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2 rounded-full font-bold shadow-lg">
+      ✓ Digitally Verified
+    </span>
+  </td>
+</tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        {/* Footer */}
+        <div className="absolute bottom-8 right-12">
+
+          <div className="border-t-2 border-black w-56"></div>
+
+          <p className="mt-2 text-xl font-bold text-center">
+            अध्यक्ष
+          </p>
+
+        </div>
+
       </div>
+
     </main>
   );
 }

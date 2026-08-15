@@ -134,7 +134,7 @@ export default function PratibhaStatusPage() {
     key={record.id}
     id={`pratibha-status-card-${record.id}`}
     className="bg-white rounded-[30px] shadow-2xl overflow-hidden"
-  >
+  >npm install xlsx jspdf jspdf-autotable
 
             {/* HEADER */}
             <div className="bg-gradient-to-r from-blue-900 via-blue-700 to-indigo-800

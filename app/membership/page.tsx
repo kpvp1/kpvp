@@ -4,10 +4,12 @@ import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 
 export default function MembershipPage() {
+  const [photo, setPhoto] = useState<File | null>(null);
   
   const [formData, setFormData] = useState({
     member_name: "",
     father_name: "",
+    husband_name: "",
     village: "",
     mobile: "",
     profession: "",
@@ -23,9 +25,10 @@ export default function MembershipPage() {
     .from("members")
     .select("id")
     .eq("member_name", formData.member_name)
-    .eq("father_name", formData.father_name)
     .eq("village", formData.village)
-    .eq("mobile", formData.mobile);
+    .or(
+      `father_name.eq.${formData.father_name},husband_name.eq.${formData.husband_name},mobile.eq.${formData.mobile}`
+    );
 
   if (existing && existing.length > 0) {
     setMessage(
@@ -34,6 +37,31 @@ export default function MembershipPage() {
     return;
   }
 
+  let photo_url = "";
+
+  if (photo) {
+
+  const fileName =
+    Date.now() + "_" + photo.name;
+
+  const { error: uploadError } =
+    await supabase.storage
+      .from("member-photos")
+      .upload(fileName, photo);
+
+  if (uploadError) {
+    setMessage(uploadError.message);
+    return;
+  }
+
+  const { data } =
+    supabase.storage
+      .from("member-photos")
+      .getPublicUrl(fileName);
+
+  photo_url = data.publicUrl;
+}
+
   const registration_no =
     "KPVP" + Date.now();
 
@@ -41,10 +69,11 @@ export default function MembershipPage() {
     .from("members")
     .insert([
       {
-        ...formData,
-        registration_no,
-        status: "Pending",
-      },
+  ...formData,
+  photo_url,
+  registration_no,
+  status: "Pending",
+}
     ]);
 
   if (error) {
@@ -59,6 +88,7 @@ export default function MembershipPage() {
   setFormData({
     member_name: "",
     father_name: "",
+    husband_name: "",
     village: "",
     mobile: "",
     profession: "",
@@ -147,7 +177,14 @@ export default function MembershipPage() {
             }
             className="w-full border p-3 rounded-xl"
           />
-
+        <input
+  type="file"
+  accept="image/*"
+  onChange={(e) =>
+    setPhoto(e.target.files?.[0] || null)
+  }
+  className="w-full border p-3 rounded-xl"
+/>
           <button
             type="submit"
             className="w-full bg-blue-600 text-white p-4 rounded-xl font-bold"
