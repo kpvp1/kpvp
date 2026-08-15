@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
-export default function PratibhaCertificatePage() {
+function PratibhaCertificateContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
@@ -12,7 +12,11 @@ export default function PratibhaCertificatePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) loadStudent();
+    if (id) {
+      loadStudent();
+    } else {
+      setLoading(false);
+    }
   }, [id]);
 
   async function loadStudent() {
@@ -22,7 +26,9 @@ export default function PratibhaCertificatePage() {
       .eq("id", id)
       .single();
 
-    if (data) setStudent(data);
+    if (data) {
+      setStudent(data);
+    }
 
     setLoading(false);
   }
@@ -45,7 +51,6 @@ export default function PratibhaCertificatePage() {
 
   return (
     <main className="min-h-screen bg-gray-200 flex justify-center items-center p-4">
-
       <div
         className="bg-white relative overflow-hidden border-[12px] border-yellow-500 shadow-2xl"
         style={{
@@ -53,7 +58,6 @@ export default function PratibhaCertificatePage() {
           height: "794px",
         }}
       >
-
         {/* Watermark */}
         <img
           src="/logo.png"
@@ -75,19 +79,16 @@ export default function PratibhaCertificatePage() {
         </div>
 
         {/* Student Photo */}
-<div className="absolute top-24 left-12 z-20">
-  <img
-    src={student.photo_url}
-    alt="Student"
-    className="w-44 h-52 object-cover border-4 border-yellow-500 rounded-xl shadow-lg"
-  />
-</div>
-
-        
+        <div className="absolute top-24 left-12 z-20">
+          <img
+            src={student.photo_url}
+            alt="Student"
+            className="w-44 h-52 object-cover border-4 border-yellow-500 rounded-xl shadow-lg"
+          />
+        </div>
 
         {/* Header */}
         <div className="relative z-10 text-center pt-12">
-
           <img
             src="/logo.png"
             alt="Logo"
@@ -107,21 +108,18 @@ export default function PratibhaCertificatePage() {
               🏆 प्रतिभा सम्मान प्रमाण पत्र
             </h2>
           </div>
-
         </div>
 
         {/* Main Text */}
         <div className="relative z-10 px-24 mt-[-10px]">
-
           <p
             className="text-center text-gray-800"
             style={{
-  fontFamily: "'Tiro Devanagari Hindi', serif",
-  fontSize: "30px",
-  lineHeight: "52px",
-}}
+              fontFamily: "'Tiro Devanagari Hindi', serif",
+              fontSize: "30px",
+              lineHeight: "52px",
+            }}
           >
-
             यह प्रमाणित किया जाता है कि
 
             <br />
@@ -169,21 +167,14 @@ export default function PratibhaCertificatePage() {
             <br />
 
             समाज एवं कांटा परगना का गौरव बढ़ाया है।
-
           </p>
-
         </div>
-
-        
-
-        {/* Footer */}
-        
 
         {/* Signatures */}
         <div className="absolute bottom-12 left-24 right-24 flex justify-between">
-
           <div className="text-center">
             <div className="border-t-2 border-black w-56"></div>
+
             <p className="mt-2 text-2xl font-bold text-blue-700">
               सचिव
             </p>
@@ -191,29 +182,41 @@ export default function PratibhaCertificatePage() {
 
           <div className="text-center">
             <div className="border-t-2 border-black w-56"></div>
+
             <p className="mt-2 text-2xl font-bold text-red-700">
               अध्यक्ष
             </p>
           </div>
-
         </div>
 
-      </div>
-<div className="absolute bottom-28 left-0 right-0 text-center">
-
+        {/* Footer */}
+        <div className="absolute bottom-28 left-0 right-0 text-center">
           <p className="text-xl font-bold text-gray-700">
             प्रतिभा सम्मान समारोह 2026
           </p>
 
           <p className="text-gray-500 mt-1">
-            Approval Date :
-            {" "}
+            Approval Date:{" "}
             {student.approval_date
               ? new Date(student.approval_date).toLocaleDateString("hi-IN")
               : ""}
           </p>
-
         </div>
+      </div>
     </main>
+  );
+}
+
+export default function PratibhaCertificatePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center text-3xl font-bold">
+          Loading Certificate...
+        </div>
+      }
+    >
+      <PratibhaCertificateContent />
+    </Suspense>
   );
 }
