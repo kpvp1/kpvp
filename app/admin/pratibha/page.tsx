@@ -6,6 +6,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
 export default function AdminPratibhaPage() {
+  const [registrationStatus, setRegistrationStatus] =
+  useState("open");
+
+const [closeMessage, setCloseMessage] =
+  useState("");
+ 
   const downloadExcel = () => {
 
   const worksheet = XLSX.utils.json_to_sheet(applications);
@@ -72,6 +78,7 @@ const [newCategory, setNewCategory] = useState("");
  useEffect(() => {
   loadApplications();
   loadSettings();
+  loadWebsiteSettings();
 }, []);
 
   async function loadApplications() {
@@ -85,8 +92,35 @@ const [newCategory, setNewCategory] = useState("");
     }
   }
 
-  async function loadSettings() {
+  async function loadWebsiteSettings() {
+  const { data } = await supabase
+    .from("website_settings")
+    .select("*");
 
+  if (!data) return;
+
+  const status = data.find(
+    (x) => x.setting_key === "pratibha_registration"
+  );
+
+  const message = data.find(
+    (x) => x.setting_key === "pratibha_message"
+  );
+
+  if (status) {
+    setRegistrationStatus(
+      status.setting_value
+    );
+  }
+
+  if (message) {
+    setCloseMessage(
+      message.setting_value
+    );
+  }
+}
+
+  async function loadSettings() {
   const { data } = await supabase
     .from("pratibha_settings")
     .select("*");
@@ -207,6 +241,37 @@ async function deleteCategory(id: number) {
 
   loadSettings();
 }
+async function savePratibhaSettings() {
+
+  await supabase
+    .from("website_settings")
+    .upsert({
+      setting_key: "pratibha_registration",
+      setting_value: registrationStatus,
+    });
+
+  await supabase
+    .from("website_settings")
+    .upsert({
+      setting_key: "pratibha_message",
+      setting_value: closeMessage,
+    });
+
+  alert("Settings Saved Successfully");
+}
+
+async function saveCloseMessage() {
+
+  await supabase
+    .from("website_settings")
+    .upsert({
+      setting_key: "pratibha_message",
+      setting_value: closeMessage,
+    });
+
+  alert("Message Saved");
+}
+
 async function toggleHome(id: number, current: boolean) {
 
   await supabase
@@ -227,161 +292,155 @@ async function toggleHome(id: number, current: boolean) {
   );
 
   return (
-    
+  <main className="min-h-screen p-6">
 
-    <main className="min-h-screen p-6">
+    {/* Registration Control */}
+    <div className="bg-white rounded-3xl p-6 mb-6">
 
-      <h1 className="text-4xl font-bold text-yellow-300 mb-6">
-        🏆 Pratibha Samman Applications
-      </h1>
-<div className="flex gap-4 mb-6">
+      <h2 className="text-2xl font-bold mb-4">
+        🔒 Registration Control
+      </h2>
 
-  <button
-    onClick={downloadExcel}
-    className="bg-green-600 text-white px-5 py-2 rounded-xl"
-  >
-    📊 Download Excel
-  </button>
+      <div className="grid md:grid-cols-2 gap-4">
 
-  <button
-    onClick={downloadPDF}
-    className="bg-red-600 text-white px-5 py-2 rounded-xl"
-  >
-    📄 Download PDF
-  </button>
+        <div>
+          <label className="font-semibold">
+            Registration Status
+          </label>
 
-</div>
-      <input
-        type="text"
-        placeholder="नाम या मोबाइल से खोजें"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full p-3 rounded-xl mb-6"
-      />
+          <select
+            value={registrationStatus}
+            onChange={(e) =>
+              setRegistrationStatus(e.target.value)
+            }
+            className="w-full border p-3 rounded-xl mt-2"
+          >
+            <option value="open">
+              🟢 Open Registration
+            </option>
 
-      <div className="overflow-auto bg-white rounded-3xl p-4">
+            <option value="closed">
+              🔴 Close Registration
+            </option>
+          </select>
+        </div>
 
-        <table className="w-full border-collapse">
+        <div>
+          <label className="font-semibold">
+            Close Message
+          </label>
 
-          <thead>
-            <tr className="bg-yellow-200">
-              <th className="border p-2">ID</th>
-              <th className="border p-2">नाम</th>
-              <th className="border p-2">पिता</th>
-              <th className="border p-2">ग्राम</th>
-              <th className="border p-2">मोबाइल</th>
-              <th className="border p-2">श्रेणी</th>
-              <th className="border p-2">%</th>
-              <th className="border p-2">फोटो</th>
-              <th className="border p-2">मार्कशीट</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Home Page</th>
-              <th className="border p-2">Action</th>
+          <textarea
+            rows={3}
+            value={closeMessage}
+            onChange={(e) =>
+              setCloseMessage(e.target.value)
+            }
+            className="w-full border p-3 rounded-xl mt-2"
+            placeholder="Application Close Message"
+          />
+        </div>
+
+      </div>
+
+      <button
+        onClick={savePratibhaSettings}
+        className="bg-blue-600 text-white px-6 py-3 rounded-xl mt-4"
+      >
+        💾 Save Settings
+      </button>
+
+    </div>
+
+    {/* Page Heading */}
+    <h1 className="text-4xl font-bold text-yellow-300 mb-6">
+      🏆 Pratibha Samman Applications
+    </h1>
+
+    <div className="flex gap-4 mb-6">
+
+      <button
+        onClick={downloadExcel}
+        className="bg-green-600 text-white px-5 py-2 rounded-xl"
+      >
+        📊 Download Excel
+      </button>
+
+      <button
+        onClick={downloadPDF}
+        className="bg-red-600 text-white px-5 py-2 rounded-xl"
+      >
+        📄 Download PDF
+      </button>
+
+    </div>
+
+    <input
+      type="text"
+      placeholder="नाम या मोबाइल से खोजें"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="w-full p-3 rounded-xl mb-6"
+    />
+
+    <div className="overflow-auto bg-white rounded-3xl p-4">
+
+      <table className="w-full border-collapse">
+
+        <thead>
+          <tr className="bg-yellow-200">
+            <th className="border p-2">ID</th>
+            <th className="border p-2">नाम</th>
+            <th className="border p-2">पिता</th>
+            <th className="border p-2">ग्राम</th>
+            <th className="border p-2">मोबाइल</th>
+            <th className="border p-2">श्रेणी</th>
+            <th className="border p-2">%</th>
+            <th className="border p-2">फोटो</th>
+            <th className="border p-2">मार्कशीट</th>
+            <th className="border p-2">Status</th>
+            <th className="border p-2">Home Page</th>
+            <th className="border p-2">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {filteredData.map((item) => (
+            <tr key={item.id}>
+              {/* तुम्हारा existing row code यहीं रहेगा */}
             </tr>
-          </thead>
+          ))}
+        </tbody>
 
-          <tbody>
-            {filteredData.map((item) => (
-              <tr key={item.id}>
+      </table>
 
-                <td className="border p-2">{item.id}</td>
-                <td className="border p-2">{item.student_name}</td>
-                <td className="border p-2">{item.father_name}</td>
-                <td className="border p-2">{item.village}</td>
-                <td className="border p-2">{item.mobile}</td>
-                <td className="border p-2">{item.category}</td>
-                <td className="border p-2">{item.percentage}</td>
+    </div>
 
-                <td className="border p-2">
-                  {item.photo_url && (
-                    <a
-                      href={item.photo_url}
-                      target="_blank"
-                      className="text-blue-600"
-                    >
-                      View
-                    </a>
-                  )}
-                </td>
+    {/* Pratibha Settings Section */}
+    <div className="mt-10 bg-white rounded-3xl p-6">
 
-                <td className="border p-2">
-                  {item.marksheet_url && (
-                    <a
-                      href={item.marksheet_url}
-                      target="_blank"
-                      className="text-blue-600"
-                    >
-                      View
-                    </a>
-                  )}
-                </td>
+      <h2 className="text-2xl font-bold mb-6">
+        ⚙️ Pratibha Settings
+      </h2>
 
-                <td className="border p-2">
-                  {item.status}
-                </td>
-                <td className="border p-2">
+      <div className="grid md:grid-cols-2 gap-8">
 
-  <button
-    onClick={() => toggleHome(item.id, item.show_home)}
-    className={
-      item.show_home
-        ? "bg-green-600 text-white px-3 py-2 rounded"
-        : "bg-gray-500 text-white px-3 py-2 rounded"
-    }
-  >
-    {item.show_home ? "⭐ Home" : "Show Home"}
-  </button>
+        {/* Categories */}
 
-</td>
+        {/* Rules */}
 
-                <td className="border p-2 space-x-2">
+      </div>
 
-  {/* Approve */}
-  <button
-    onClick={() =>
-      updateStatus(item.id, "Approved")
-    }
-    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
-  >
-    Approve
-  </button>
+    </div>
 
-  {/* Reject */}
-  <button
-    onClick={() =>
-      updateStatus(item.id, "Rejected")
-    }
-    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-  >
-    Reject
-  </button>
-
-  {/* Delete */}
-  <button
-    onClick={() =>
-      deleteApplication(
-        item.id,
-        item.student_name
-      )
-    }
-    className="bg-red-800 hover:bg-red-900 text-white px-3 py-1 rounded"
-  >
-    🗑️ Delete
-  </button>
-
-</td>
-              </tr>
-            ))}
-          </tbody>
-
-        </table>
-{/* Pratibha Settings */}
+    {/* Pratibha Settings */}
 
 <div className="mt-10 bg-white rounded-3xl p-6">
 
   <h2 className="text-2xl font-bold mb-6">
     ⚙️ Pratibha Settings
   </h2>
+  
 
   <div className="grid md:grid-cols-2 gap-8">
 
@@ -491,7 +550,7 @@ async function toggleHome(id: number, current: boolean) {
 
     </div>
 
-  </div>
+  
 
 </div>
       </div>

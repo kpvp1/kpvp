@@ -125,16 +125,23 @@ function CertificateContent() {
 
           {/* Left */}
           <div className="w-[35%] text-center">
+<div className="absolute top-85 left-22">
+  <div className="w-[250px] h-[300px] border-4 border-blue-600 rounded-lg overflow-hidden bg-white shadow-lg flex items-center justify-center">
 
-            <img
-              src={
-                member.photo_url
-                  ? member.photo_url
-                  : "/default-user.png"
-              }
-              alt="Member"
-              className="w-64 h-72 object-cover border-4 border-yellow-500 rounded-2xl mx-auto"
-            />
+    <img
+      src={
+        member.photo_url
+          ? member.photo_url
+          : "/default-user.png"
+      }
+      alt="Member"
+      className="w-full h-full object-cover object-top"
+    />
+
+  </div>
+</div>
+    
+    
 
             <h2 className="mt-5 text-5xl font-extrabold text-blue-700 tracking-wide">
             {member.member_name}

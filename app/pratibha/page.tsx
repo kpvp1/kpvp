@@ -10,7 +10,11 @@ export default function PratibhaPage() {
   const [message, setMessage] = useState("");
   const [rules, setRules] = useState<any[]>([]);
 const [categories, setCategories] = useState<any[]>([]);
+const [registrationStatus, setRegistrationStatus] =
+  useState("open");
 
+const [closeMessage, setCloseMessage] =
+  useState("");
   
 
   
@@ -43,6 +47,34 @@ const [retirementYear, setRetirementYear] = useState("");
 const [otherDetails, setOtherDetails] = useState("");
 
 
+async function loadRegistrationStatus() {
+
+  const { data } = await supabase
+    .from("website_settings")
+    .select("*");
+
+  if (!data) return;
+
+  const status = data.find(
+    (x) => x.setting_key === "pratibha_registration"
+  );
+
+  const message = data.find(
+    (x) => x.setting_key === "pratibha_message"
+  );
+
+  if (status) {
+    setRegistrationStatus(
+      status.setting_value
+    );
+  }
+
+  if (message) {
+    setCloseMessage(
+      message.setting_value
+    );
+  }
+}
 async function loadSettings() {
   const { data, error } = await supabase
     .from("pratibha_settings")
@@ -68,6 +100,7 @@ async function loadSettings() {
 
 useEffect(() => {
   loadSettings();
+  loadRegistrationStatus();
 }, []);
 
 
@@ -236,6 +269,34 @@ other_details: otherDetails,
 
     setLoading(false);
   }
+
+  if (registrationStatus === "closed") {
+
+  return (
+
+    <main className="min-h-screen flex items-center justify-center p-6">
+
+      <div className="bg-white rounded-3xl p-10 shadow-2xl max-w-2xl text-center">
+
+        <div className="text-7xl mb-4">
+          🚫
+        </div>
+
+        <h1 className="text-4xl font-bold text-red-600 mb-4">
+          प्रतिभा सम्मान आवेदन बंद हैं
+        </h1>
+
+        <div className="text-xl text-gray-700 leading-8">
+          {closeMessage}
+        </div>
+
+      </div>
+
+    </main>
+
+  );
+}
+
  return (
     <main className="min-h-screen p-6 max-w-4xl mx-auto">
 

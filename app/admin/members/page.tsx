@@ -114,15 +114,17 @@ export default function MembersPage() {
                 <td className="p-3">{m.mobile}</td>
 
 <td className="p-3">
-  {m.photo_url ? (
-    <img
-      src={m.photo_url}
-      alt="Member"
-      className="w-14 h-14 rounded-full object-cover mx-auto"
-    />
-  ) : (
-    "No Photo"
-  )}
+  
+  <img
+  src={
+    m.photo_url
+      ? m.photo_url
+      : "/default-user.png"
+  }
+  alt="Member"
+  className="w-14 h-14 rounded-full object-cover mx-auto"
+/>
+
 </td>
 
 <td className="p-3">{m.profession}</td>
