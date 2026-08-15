@@ -131,6 +131,32 @@ const [newCategory, setNewCategory] = useState("");
 
   loadApplications();
 }
+
+async function deleteApplication(
+  id: number,
+  studentName: string
+) {
+  const confirmed = window.confirm(
+    `क्या आप "${studentName}" की प्रतिभा सम्मान application delete करना चाहते हैं?\n\nयह record permanently delete हो जाएगा।`
+  );
+
+  if (!confirmed) return;
+
+  const { error } = await supabase
+    .from("pratibha")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("Delete failed: " + error.message);
+    return;
+  }
+
+  alert("Pratibha application successfully deleted.");
+
+  loadApplications();
+}
+
 async function addRule() {
 
   if (!newRule.trim()) return;
@@ -310,26 +336,40 @@ async function toggleHome(id: number, current: boolean) {
 
                 <td className="border p-2 space-x-2">
 
-                  <button
-                    onClick={() =>
-                      updateStatus(item.id, "Approved")
-                    }
-                    className="bg-green-600 text-white px-3 py-1 rounded"
-                  >
-                    Approve
-                  </button>
+  {/* Approve */}
+  <button
+    onClick={() =>
+      updateStatus(item.id, "Approved")
+    }
+    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+  >
+    Approve
+  </button>
 
-                  <button
-                    onClick={() =>
-                      updateStatus(item.id, "Rejected")
-                    }
-                    className="bg-red-600 text-white px-3 py-1 rounded"
-                  >
-                    Reject
-                  </button>
+  {/* Reject */}
+  <button
+    onClick={() =>
+      updateStatus(item.id, "Rejected")
+    }
+    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+  >
+    Reject
+  </button>
 
-                </td>
+  {/* Delete */}
+  <button
+    onClick={() =>
+      deleteApplication(
+        item.id,
+        item.student_name
+      )
+    }
+    className="bg-red-800 hover:bg-red-900 text-white px-3 py-1 rounded"
+  >
+    🗑️ Delete
+  </button>
 
+</td>
               </tr>
             ))}
           </tbody>

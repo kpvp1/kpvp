@@ -5,6 +5,7 @@ import { supabase } from "../../../lib/supabase";
 
 export default function MembersPage() {
   const [members, setMembers] = useState<any[]>([]);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     loadMembers();
@@ -19,13 +20,46 @@ export default function MembersPage() {
     loadMembers();
   }
 
+  async function deleteMember(id: number, memberName: string) {
+    const confirmed = window.confirm(
+      `क्या आप "${memberName}" की membership application delete करना चाहते हैं?\n\nयह record permanently delete हो जाएगा।`
+    );
+
+    if (!confirmed) return;
+
+    setDeletingId(id);
+
+    const { error } = await supabase
+      .from("members")
+      .delete()
+      .eq("id", id);
+
+    setDeletingId(null);
+
+    if (error) {
+      alert("Delete failed: " + error.message);
+      return;
+    }
+
+    alert("Membership application successfully deleted.");
+
+    loadMembers();
+  }
+
   async function loadMembers() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("members")
       .select("*")
       .order("id", { ascending: false });
 
-    if (data) setMembers(data);
+    if (error) {
+      console.error("Error loading members:", error);
+      return;
+    }
+
+    if (data) {
+      setMembers(data);
+    }
   }
 
   return (
@@ -59,12 +93,30 @@ export default function MembersPage() {
                 key={m.id}
                 className="border-b border-white/10 text-center"
               >
-                <td className="p-3">{m.id}</td>
-                <td className="p-3">{m.member_name}</td>
-                <td className="p-3">{m.father_name}</td>
-                <td className="p-3">{m.village}</td>
-                <td className="p-3">{m.mobile}</td>
-                <td className="p-3">{m.profession}</td>
+
+                <td className="p-3">
+                  {m.id}
+                </td>
+
+                <td className="p-3">
+                  {m.member_name}
+                </td>
+
+                <td className="p-3">
+                  {m.father_name}
+                </td>
+
+                <td className="p-3">
+                  {m.village}
+                </td>
+
+                <td className="p-3">
+                  {m.mobile}
+                </td>
+
+                <td className="p-3">
+                  {m.profession}
+                </td>
 
                 <td className="p-3">
 
@@ -86,31 +138,48 @@ export default function MembersPage() {
 
                 <td className="p-3 space-x-2">
 
+                  {/* Approve */}
                   <button
                     onClick={() =>
                       updateStatus(m.id, "Approved")
                     }
-                    className="bg-green-600 text-white px-3 py-1 rounded"
+                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
                   >
                     Approve
                   </button>
 
+                  {/* Reject */}
                   <button
                     onClick={() =>
                       updateStatus(m.id, "Rejected")
                     }
-                    className="bg-red-600 text-white px-3 py-1 rounded"
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
                   >
                     Reject
                   </button>
 
+                  {/* Certificate */}
                   <a
                     href={`/certificate?id=${m.id}`}
                     target="_blank"
-                    className="bg-blue-600 text-white px-3 py-1 rounded inline-block"
+                    rel="noopener noreferrer"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded inline-block"
                   >
                     Certificate
                   </a>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() =>
+                      deleteMember(m.id, m.member_name)
+                    }
+                    disabled={deletingId === m.id}
+                    className="bg-red-800 hover:bg-red-900 disabled:bg-gray-500 text-white px-3 py-1 rounded"
+                  >
+                    {deletingId === m.id
+                      ? "Deleting..."
+                      : "🗑️ Delete"}
+                  </button>
 
                 </td>
 
