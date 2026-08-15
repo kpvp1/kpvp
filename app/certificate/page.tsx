@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
-export default function CertificatePage() {
+function CertificateContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
@@ -14,6 +14,8 @@ export default function CertificatePage() {
   useEffect(() => {
     if (id) {
       loadMember();
+    } else {
+      setLoading(false);
     }
   }, [id]);
 
@@ -49,7 +51,6 @@ export default function CertificatePage() {
 
   return (
     <main className="min-h-screen bg-gray-200 flex justify-center items-center p-6">
-
       <div
         className="bg-white border-[12px] border-yellow-500 shadow-2xl relative overflow-hidden"
         style={{
@@ -57,9 +58,6 @@ export default function CertificatePage() {
           height: "794px",
         }}
       >
-
-        {/* Watermark */}
-
         {/* Watermark */}
         <img
           src="/logo.png"
@@ -72,7 +70,6 @@ export default function CertificatePage() {
 
         {/* Header */}
         <div className="relative z-10 text-center pt-8">
-
           <img
             src="/logo.png"
             alt="Logo"
@@ -95,94 +92,102 @@ export default function CertificatePage() {
               सदस्यता प्रमाण पत्र
             </h2>
           </div>
-
         </div>
 
-       
-       {/* Main Certificate Text */}
-<div className="relative z-10 px-24 mt-10">
+        {/* Main Certificate Text */}
+        <div className="relative z-10 px-24 mt-10">
+          <p
+            className="text-center text-gray-800 leading-[60px]"
+            style={{
+              fontFamily: "'Tiro Devanagari Hindi', serif",
+              fontSize: "28px",
+            }}
+          >
+            यह प्रमाणित किया जाता है कि
 
-  <p
-    className="text-center text-gray-800 leading-[60px]"
-    style={{
-      fontFamily: "'Tiro Devanagari Hindi', serif",
-      fontSize: "28px",
-    }}
-  >
-    यह प्रमाणित किया जाता है कि
+            <span className="text-blue-700 font-bold text-[40px]">
+              {" "}
+              {member.member_name}
+            </span>
 
-    <span className="text-blue-700 font-bold text-[40px]">
-      {" "}
-      {member.member_name}
-    </span>
+            <br />
 
-    <br />
+            पिता / पति
 
-    पिता / पति
+            <span className="text-purple-700 font-bold text-[40px]">
+              {" "}
+              {member.father_name}
+            </span>
 
-    <span className="text-purple-700 font-bold text-[40px]">
-      {" "}
-      {member.father_name}
-    </span>
+            <br />
 
-    <br />
+            ग्राम
 
-    ग्राम
+            <span className="text-green-700 font-bold text-[40px]">
+              {" "}
+              {member.village}
+            </span>
 
-    <span className="text-green-700 font-bold text-[40px]">
-      {" "}
-      {member.village}
-    </span>
+            <br />
 
-    <br />
-
-    मारवाड़ मीणा समाज कांटा परगना के प्रतिष्ठित सदस्य हैं तथा
-    कांटा परगना विकास परिषद में विधिवत पंजीकृत सदस्य के रूप में
-    सम्मानपूर्वक मान्यता प्राप्त है।
-  </p>
-
-</div>
-
-{/* Certificate Number */}
-<div className="absolute bottom-32 left-0 right-0 text-center">
-
-  <p className="text-lg font-semibold text-gray-700">
-    Certificate No :
-    <span className="text-blue-700">
-      {" "}
-      KPVP-CERT-{member.id}
-    </span>
-  </p>
-
-  <p className="text-lg font-semibold text-gray-700 mt-1">
-    Registration No :
-    <span className="text-green-700">
-      {" "}
-      {member.registration_no}
-    </span>
-  </p>
-
-</div>
-
-{/* Signatures */}
-      <div className="absolute bottom-10 left-20 right-20 flex justify-between">
-
-        <div className="text-center">
-          <div className="border-t-2 border-black w-56"></div>
-          <p className="mt-2 text-2xl font-bold text-blue-800">
-            सचिव
+            मारवाड़ मीणा समाज कांटा परगना के प्रतिष्ठित सदस्य हैं तथा
+            कांटा परगना विकास परिषद में विधिवत पंजीकृत सदस्य के रूप में
+            सम्मानपूर्वक मान्यता प्राप्त है।
           </p>
         </div>
 
-        <div className="text-center">
-          <div className="border-t-2 border-black w-56"></div>
-          <p className="mt-2 text-2xl font-bold text-red-800">
-            अध्यक्ष
+        {/* Certificate Number */}
+        <div className="absolute bottom-32 left-0 right-0 text-center">
+          <p className="text-lg font-semibold text-gray-700">
+            Certificate No :
+            <span className="text-blue-700">
+              {" "}
+              KPVP-CERT-{member.id}
+            </span>
+          </p>
+
+          <p className="text-lg font-semibold text-gray-700 mt-1">
+            Registration No :
+            <span className="text-green-700">
+              {" "}
+              {member.registration_no}
+            </span>
           </p>
         </div>
 
-      </div>
+        {/* Signatures */}
+        <div className="absolute bottom-10 left-20 right-20 flex justify-between">
+          <div className="text-center">
+            <div className="border-t-2 border-black w-56"></div>
+
+            <p className="mt-2 text-2xl font-bold text-blue-800">
+              सचिव
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="border-t-2 border-black w-56"></div>
+
+            <p className="mt-2 text-2xl font-bold text-red-800">
+              अध्यक्ष
+            </p>
+          </div>
+        </div>
       </div>
     </main>
+  );
+}
+
+export default function CertificatePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center text-3xl font-bold">
+          Loading Certificate...
+        </div>
+      }
+    >
+      <CertificateContent />
+    </Suspense>
   );
 }
