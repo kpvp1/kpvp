@@ -1,4 +1,5 @@
 "use client";
+
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -6,553 +7,963 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
 export default function AdminPratibhaPage() {
-  const [registrationStatus, setRegistrationStatus] =
-  useState("open");
+  const [registrationStatus, setRegistrationStatus] = useState("open");
+  const [closeMessage, setCloseMessage] = useState("");
 
-const [closeMessage, setCloseMessage] =
-  useState("");
- 
-  const downloadExcel = () => {
-
-  const worksheet = XLSX.utils.json_to_sheet(applications);
-
-  const workbook = XLSX.utils.book_new();
-
-  XLSX.utils.book_append_sheet(
-    workbook,
-    worksheet,
-    "Pratibha Applications"
-  );
-
-  XLSX.writeFile(
-    workbook,
-    "Pratibha_Applications.xlsx"
-  );
-};
-const downloadPDF = () => {
-
-  const doc = new jsPDF();
-
-  doc.setFontSize(16);
-
-  doc.text(
-    "Pratibha Samman Applications",
-    14,
-    15
-  );
-
-  autoTable(doc, {
-    startY: 25,
-
-    head: [[
-      "ID",
-      "Name",
-      "Village",
-      "Mobile",
-      "Category",
-      "Percentage",
-      "Status"
-    ]],
-
-    body: applications.map((item) => [
-      item.id,
-      item.student_name,
-      item.village,
-      item.mobile,
-      item.category,
-      item.percentage,
-      item.status
-    ])
-  });
-
-  doc.save("Pratibha_Applications.pdf");
-};
   const [applications, setApplications] = useState<any[]>([]);
   const [search, setSearch] = useState("");
+
   const [rules, setRules] = useState<any[]>([]);
-const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
 
-const [newRule, setNewRule] = useState("");
-const [newCategory, setNewCategory] = useState("");
+  const [newRule, setNewRule] = useState("");
+  const [newCategory, setNewCategory] = useState("");
 
- useEffect(() => {
-  loadApplications();
-  loadSettings();
-  loadWebsiteSettings();
-}, []);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadApplications();
+    loadWebsiteSettings();
+    loadSettings();
+  }, []);
+
+  // =========================
+  // LOAD APPLICATIONS
+  // =========================
 
   async function loadApplications() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("pratibha")
       .select("*")
       .order("id", { ascending: false });
 
-    if (data) {
-      setApplications(data);
+    if (error) {
+      console.error("Applications Error:", error);
+      alert("Applications load नहीं हो पाए: " + error.message);
+      return;
+    }
+
+    setApplications(data || []);
+  }
+
+  // =========================
+  // LOAD WEBSITE SETTINGS
+  // =========================
+
+  async function loadWebsiteSettings() {
+    const { data, error } = await supabase
+      .from("website_settings")
+      .select("*");
+
+    if (error) {
+      console.error("Website Settings Error:", error);
+      return;
+    }
+
+    const status = data?.find(
+      (x) => x.setting_key === "pratibha_registration"
+    );
+
+    const message = data?.find(
+      (x) => x.setting_key === "pratibha_message"
+    );
+
+    if (status) {
+      setRegistrationStatus(status.setting_value);
+    }
+
+    if (message) {
+      setCloseMessage(message.setting_value);
     }
   }
 
-  async function loadWebsiteSettings() {
-  const { data } = await supabase
-    .from("website_settings")
-    .select("*");
+  // =========================
+  // SAVE WEBSITE SETTING
+  // =========================
 
-  if (!data) return;
+  async function saveWebsiteSetting(
+    key: string,
+    value: string
+  ) {
+    const { data: existing, error: findError } = await supabase
+      .from("website_settings")
+      .select("id")
+      .eq("setting_key", key)
+      .limit(1);
 
-  const status = data.find(
-    (x) => x.setting_key === "pratibha_registration"
-  );
+    if (findError) {
+      throw findError;
+    }
 
-  const message = data.find(
-    (x) => x.setting_key === "pratibha_message"
-  );
+    if (existing && existing.length > 0) {
+      const { error } = await supabase
+        .from("website_settings")
+        .update({
+          setting_value: value,
+        })
+        .eq("id", existing[0].id);
 
-  if (status) {
-    setRegistrationStatus(
-      status.setting_value
-    );
+      if (error) throw error;
+    } else {
+      const { error } = await supabase
+        .from("website_settings")
+        .insert([
+          {
+            setting_key: key,
+            setting_value: value,
+          },
+        ]);
+
+      if (error) throw error;
+    }
   }
 
-  if (message) {
-    setCloseMessage(
-      message.setting_value
-    );
+  // =========================
+  // SAVE OPEN / CLOSE
+  // =========================
+
+  async function savePratibhaSettings() {
+    try {
+      setLoading(true);
+
+      await saveWebsiteSetting(
+        "pratibha_registration",
+        registrationStatus
+      );
+
+      await saveWebsiteSetting(
+        "pratibha_message",
+        closeMessage
+      );
+
+      await loadWebsiteSettings();
+
+      alert(
+        registrationStatus === "open"
+          ? "✅ Pratibha Registration OPEN कर दिया गया है।"
+          : "🔴 Pratibha Registration CLOSE कर दिया गया है।"
+      );
+    } catch (error: any) {
+      console.error(error);
+      alert("❌ Settings Save Error: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   }
-}
+
+  // =========================
+  // LOAD PRATIBHA SETTINGS
+  // =========================
 
   async function loadSettings() {
-  const { data } = await supabase
-    .from("pratibha_settings")
-    .select("*");
+    const { data, error } = await supabase
+      .from("pratibha_settings")
+      .select("*")
+      .order("id", { ascending: true });
 
-  if (!data) return;
+    if (error) {
+      console.error("Pratibha Settings Error:", error);
+      return;
+    }
 
-  setRules(
-    data.filter(
-      (x) => x.setting_type === "rule"
-    )
-  );
+    setRules(
+      (data || []).filter(
+        (x) => x.setting_type === "rule"
+      )
+    );
 
-  setCategories(
-    data.filter(
-      (x) => x.setting_type === "category"
-    )
-  );
-}
+    setCategories(
+      (data || []).filter(
+        (x) => x.setting_type === "category"
+      )
+    );
+  }
 
-  async function updateStatus(id: number, status: string) {
+  // =========================
+  // APPROVE / REJECT
+  // =========================
 
-  if (status === "Approved") {
+  async function updateStatus(
+    id: number,
+    status: string
+  ) {
+    const updateData: any = {
+      status,
+    };
 
-    await supabase
+    if (status === "Approved") {
+      updateData.approval_date =
+        new Date().toISOString();
+    }
+
+    const { error } = await supabase
+      .from("pratibha")
+      .update(updateData)
+      .eq("id", id);
+
+    if (error) {
+      alert("Status update failed: " + error.message);
+      return;
+    }
+
+    await loadApplications();
+  }
+
+  // =========================
+  // DELETE APPLICATION
+  // =========================
+
+  async function deleteApplication(
+    id: number,
+    studentName: string
+  ) {
+    const confirmed = window.confirm(
+      `क्या आप "${studentName}" की Pratibha application delete करना चाहते हैं?\n\nयह record permanently delete हो जाएगा।`
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabase
+      .from("pratibha")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      alert("Delete failed: " + error.message);
+      return;
+    }
+
+    alert("✅ Pratibha application successfully deleted.");
+
+    await loadApplications();
+  }
+
+  // =========================
+  // HOME PAGE TOGGLE
+  // =========================
+
+  async function toggleHome(
+    id: number,
+    current: boolean
+  ) {
+    const { error } = await supabase
       .from("pratibha")
       .update({
-        status: "Approved",
-        approval_date: new Date().toISOString()
+        show_home: !current,
       })
       .eq("id", id);
 
-  } else {
+    if (error) {
+      alert("Home Page update failed: " + error.message);
+      return;
+    }
 
-    await supabase
-      .from("pratibha")
-      .update({
-        status: "Rejected"
-      })
+    await loadApplications();
+  }
+
+  // =========================
+  // ADD RULE
+  // =========================
+
+  async function addRule() {
+    if (!newRule.trim()) return;
+
+    const { error } = await supabase
+      .from("pratibha_settings")
+      .insert([
+        {
+          setting_type: "rule",
+          value: newRule.trim(),
+        },
+      ]);
+
+    if (error) {
+      alert("Rule add failed: " + error.message);
+      return;
+    }
+
+    setNewRule("");
+    await loadSettings();
+  }
+
+  // =========================
+  // DELETE RULE
+  // =========================
+
+  async function deleteRule(id: number) {
+    const { error } = await supabase
+      .from("pratibha_settings")
+      .delete()
       .eq("id", id);
 
+    if (error) {
+      alert("Rule delete failed: " + error.message);
+      return;
+    }
+
+    await loadSettings();
   }
 
-  loadApplications();
-}
+  // =========================
+  // ADD CATEGORY
+  // =========================
 
-async function deleteApplication(
-  id: number,
-  studentName: string
-) {
-  const confirmed = window.confirm(
-    `क्या आप "${studentName}" की प्रतिभा सम्मान application delete करना चाहते हैं?\n\nयह record permanently delete हो जाएगा।`
-  );
+  async function addCategory() {
+    if (!newCategory.trim()) return;
 
-  if (!confirmed) return;
+    const { error } = await supabase
+      .from("pratibha_settings")
+      .insert([
+        {
+          setting_type: "category",
+          value: newCategory.trim(),
+        },
+      ]);
 
-  const { error } = await supabase
-    .from("pratibha")
-    .delete()
-    .eq("id", id);
+    if (error) {
+      alert("Category add failed: " + error.message);
+      return;
+    }
 
-  if (error) {
-    alert("Delete failed: " + error.message);
-    return;
+    setNewCategory("");
+    await loadSettings();
   }
 
-  alert("Pratibha application successfully deleted.");
+  // =========================
+  // DELETE CATEGORY
+  // =========================
 
-  loadApplications();
-}
+  async function deleteCategory(id: number) {
+    const { error } = await supabase
+      .from("pratibha_settings")
+      .delete()
+      .eq("id", id);
 
-async function addRule() {
+    if (error) {
+      alert("Category delete failed: " + error.message);
+      return;
+    }
 
-  if (!newRule.trim()) return;
+    await loadSettings();
+  }
 
-  await supabase
-    .from("pratibha_settings")
-    .insert([
-      {
-        setting_type: "rule",
-        value: newRule,
-      },
-    ]);
+  // =========================
+  // EXCEL
+  // =========================
 
-  setNewRule("");
-  loadSettings();
-}
-async function deleteRule(id: number) {
+  function downloadExcel() {
+    const worksheet =
+      XLSX.utils.json_to_sheet(applications);
 
-  await supabase
-    .from("pratibha_settings")
-    .delete()
-    .eq("id", id);
+    const workbook = XLSX.utils.book_new();
 
-  loadSettings();
-}
-async function addCategory() {
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Pratibha Applications"
+    );
 
-  if (!newCategory.trim()) return;
+    XLSX.writeFile(
+      workbook,
+      "Pratibha_Applications.xlsx"
+    );
+  }
 
-  await supabase
-    .from("pratibha_settings")
-    .insert([
-      {
-        setting_type: "category",
-        value: newCategory,
-      },
-    ]);
+  // =========================
+  // PDF
+  // =========================
 
-  setNewCategory("");
-  loadSettings();
-}
-async function deleteCategory(id: number) {
+  function downloadPDF() {
+    const doc = new jsPDF();
 
-  await supabase
-    .from("pratibha_settings")
-    .delete()
-    .eq("id", id);
+    doc.setFontSize(16);
 
-  loadSettings();
-}
-async function savePratibhaSettings() {
+    doc.text(
+      "Pratibha Samman Applications",
+      14,
+      15
+    );
 
-  await supabase
-    .from("website_settings")
-    .upsert({
-      setting_key: "pratibha_registration",
-      setting_value: registrationStatus,
+    autoTable(doc, {
+      startY: 25,
+
+      head: [[
+        "ID",
+        "Name",
+        "Father",
+        "Village",
+        "Mobile",
+        "Category",
+        "%",
+        "Status",
+      ]],
+
+      body: applications.map((item) => [
+        item.id,
+        item.student_name || "",
+        item.father_name || "",
+        item.village || "",
+        item.mobile || "",
+        item.category || "",
+        item.percentage || "",
+        item.status || "",
+      ]),
     });
 
-  await supabase
-    .from("website_settings")
-    .upsert({
-      setting_key: "pratibha_message",
-      setting_value: closeMessage,
+    doc.save(
+      "Pratibha_Applications.pdf"
+    );
+  }
+
+  // =========================
+  // SEARCH
+  // =========================
+
+  const filteredData =
+    applications.filter((item) => {
+      const searchText =
+        search.toLowerCase().trim();
+
+      return (
+        item.student_name
+          ?.toLowerCase()
+          .includes(searchText) ||
+        item.mobile
+          ?.toString()
+          .includes(searchText) ||
+        item.village
+          ?.toLowerCase()
+          .includes(searchText) ||
+        item.category
+          ?.toLowerCase()
+          .includes(searchText)
+      );
     });
-
-  alert("Settings Saved Successfully");
-}
-
-async function saveCloseMessage() {
-
-  await supabase
-    .from("website_settings")
-    .upsert({
-      setting_key: "pratibha_message",
-      setting_value: closeMessage,
-    });
-
-  alert("Message Saved");
-}
-
-async function toggleHome(id: number, current: boolean) {
-
-  await supabase
-    .from("pratibha")
-    .update({
-      show_home: !current,
-    })
-    .eq("id", id);
-
-  loadApplications();
-}
-  const filteredData = applications.filter(
-    (item) =>
-      item.student_name
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
-      item.mobile?.includes(search)
-  );
 
   return (
-  <main className="min-h-screen p-6">
+    <main className="min-h-screen p-6">
 
-    {/* Registration Control */}
-    <div className="bg-white rounded-3xl p-6 mb-6">
+      {/* ========================= */}
+      {/* REGISTRATION CONTROL */}
+      {/* ========================= */}
 
-      <h2 className="text-2xl font-bold mb-4">
-        🔒 Registration Control
-      </h2>
+      <div className="bg-white rounded-3xl p-6 mb-6 shadow-lg">
 
-      <div className="grid md:grid-cols-2 gap-4">
+        <h2 className="text-2xl font-bold mb-4">
+          🔒 Registration Control
+        </h2>
 
-        <div>
-          <label className="font-semibold">
-            Registration Status
-          </label>
+        <div className="grid md:grid-cols-2 gap-4">
 
-          <select
-            value={registrationStatus}
-            onChange={(e) =>
-              setRegistrationStatus(e.target.value)
-            }
-            className="w-full border p-3 rounded-xl mt-2"
-          >
-            <option value="open">
-              🟢 Open Registration
-            </option>
+          <div>
 
-            <option value="closed">
-              🔴 Close Registration
-            </option>
-          </select>
+            <label className="font-semibold">
+              Registration Status
+            </label>
+
+            <select
+              value={registrationStatus}
+              onChange={(e) =>
+                setRegistrationStatus(
+                  e.target.value
+                )
+              }
+              className="w-full border p-3 rounded-xl mt-2"
+            >
+
+              <option value="open">
+                🟢 Open Registration
+              </option>
+
+              <option value="closed">
+                🔴 Close Registration
+              </option>
+
+            </select>
+
+          </div>
+
+          <div>
+
+            <label className="font-semibold">
+              Close Message
+            </label>
+
+            <textarea
+              rows={3}
+              value={closeMessage}
+              onChange={(e) =>
+                setCloseMessage(
+                  e.target.value
+                )
+              }
+              className="w-full border p-3 rounded-xl mt-2"
+              placeholder="Application Close Message"
+            />
+
+          </div>
+
         </div>
 
-        <div>
-          <label className="font-semibold">
-            Close Message
-          </label>
-
-          <textarea
-            rows={3}
-            value={closeMessage}
-            onChange={(e) =>
-              setCloseMessage(e.target.value)
-            }
-            className="w-full border p-3 rounded-xl mt-2"
-            placeholder="Application Close Message"
-          />
-        </div>
+        <button
+          onClick={savePratibhaSettings}
+          disabled={loading}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl mt-4 font-bold"
+        >
+          {loading
+            ? "Saving..."
+            : "💾 Save Settings"}
+        </button>
 
       </div>
 
-      <button
-        onClick={savePratibhaSettings}
-        className="bg-blue-600 text-white px-6 py-3 rounded-xl mt-4"
-      >
-        💾 Save Settings
-      </button>
+      {/* ========================= */}
+      {/* HEADING */}
+      {/* ========================= */}
 
-    </div>
+      <h1 className="text-4xl font-bold text-yellow-300 mb-6">
+        🏆 Pratibha Samman Applications
+      </h1>
 
-    {/* Page Heading */}
-    <h1 className="text-4xl font-bold text-yellow-300 mb-6">
-      🏆 Pratibha Samman Applications
-    </h1>
+      {/* ========================= */}
+      {/* EXPORT BUTTONS */}
+      {/* ========================= */}
 
-    <div className="flex gap-4 mb-6">
+      <div className="flex flex-wrap gap-4 mb-6">
 
-      <button
-        onClick={downloadExcel}
-        className="bg-green-600 text-white px-5 py-2 rounded-xl"
-      >
-        📊 Download Excel
-      </button>
+        <button
+          onClick={downloadExcel}
+          className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl"
+        >
+          📊 Download Excel
+        </button>
 
-      <button
-        onClick={downloadPDF}
-        className="bg-red-600 text-white px-5 py-2 rounded-xl"
-      >
-        📄 Download PDF
-      </button>
+        <button
+          onClick={downloadPDF}
+          className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl"
+        >
+          📄 Download PDF
+        </button>
 
-    </div>
+        <button
+          onClick={loadApplications}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl"
+        >
+          🔄 Refresh
+        </button>
 
-    <input
-      type="text"
-      placeholder="नाम या मोबाइल से खोजें"
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      className="w-full p-3 rounded-xl mb-6"
-    />
+      </div>
 
-    <div className="overflow-auto bg-white rounded-3xl p-4">
+      {/* ========================= */}
+      {/* SEARCH */}
+      {/* ========================= */}
 
-      <table className="w-full border-collapse">
+      <input
+        type="text"
+        placeholder="नाम, मोबाइल, गाँव या श्रेणी से खोजें"
+        value={search}
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
+        className="w-full p-3 rounded-xl mb-6 text-black"
+      />
 
-        <thead>
-          <tr className="bg-yellow-200">
-            <th className="border p-2">ID</th>
-            <th className="border p-2">नाम</th>
-            <th className="border p-2">पिता</th>
-            <th className="border p-2">ग्राम</th>
-            <th className="border p-2">मोबाइल</th>
-            <th className="border p-2">श्रेणी</th>
-            <th className="border p-2">%</th>
-            <th className="border p-2">फोटो</th>
-            <th className="border p-2">मार्कशीट</th>
-            <th className="border p-2">Status</th>
-            <th className="border p-2">Home Page</th>
-            <th className="border p-2">Action</th>
-          </tr>
-        </thead>
+      {/* ========================= */}
+      {/* APPLICATION TABLE */}
+      {/* ========================= */}
 
-        <tbody>
-          {filteredData.map((item) => (
-            <tr key={item.id}>
-              {/* तुम्हारा existing row code यहीं रहेगा */}
+      <div className="overflow-auto bg-white rounded-3xl p-4 shadow-lg">
+
+        <table className="w-full border-collapse text-sm">
+
+          <thead>
+
+            <tr className="bg-yellow-200">
+
+              <th className="border p-2">
+                ID
+              </th>
+
+              <th className="border p-2">
+                Registration
+              </th>
+
+              <th className="border p-2">
+                नाम
+              </th>
+
+              <th className="border p-2">
+                पिता
+              </th>
+
+              <th className="border p-2">
+                गाँव
+              </th>
+
+              <th className="border p-2">
+                मोबाइल
+              </th>
+
+              <th className="border p-2">
+                श्रेणी
+              </th>
+
+              <th className="border p-2">
+                %
+              </th>
+
+              <th className="border p-2">
+                फोटो
+              </th>
+
+              <th className="border p-2">
+                Marksheet
+              </th>
+
+              <th className="border p-2">
+                Status
+              </th>
+
+              <th className="border p-2">
+                Home
+              </th>
+
+              <th className="border p-2">
+                Action
+              </th>
+
             </tr>
-          ))}
-        </tbody>
 
-      </table>
+          </thead>
 
-    </div>
+          <tbody>
 
-    {/* Pratibha Settings Section */}
-    <div className="mt-10 bg-white rounded-3xl p-6">
+            {filteredData.length === 0 ? (
 
-      <h2 className="text-2xl font-bold mb-6">
-        ⚙️ Pratibha Settings
-      </h2>
+              <tr>
 
-      <div className="grid md:grid-cols-2 gap-8">
+                <td
+                  colSpan={13}
+                  className="text-center p-8 text-gray-500"
+                >
+                  कोई Pratibha Application नहीं मिली।
+                </td>
 
-        {/* Categories */}
+              </tr>
 
-        {/* Rules */}
+            ) : (
+
+              filteredData.map((item) => (
+
+                <tr
+                  key={item.id}
+                  className="hover:bg-gray-50"
+                >
+
+                  <td className="border p-2">
+                    {item.id}
+                  </td>
+
+                  <td className="border p-2 font-semibold">
+                    {item.registration_no || "-"}
+                  </td>
+
+                  <td className="border p-2 font-semibold">
+                    {item.student_name || "-"}
+                  </td>
+
+                  <td className="border p-2">
+                    {item.father_name || "-"}
+                  </td>
+
+                  <td className="border p-2">
+                    {item.village || "-"}
+                  </td>
+
+                  <td className="border p-2">
+                    {item.mobile || "-"}
+                  </td>
+
+                  <td className="border p-2">
+                    {item.category || "-"}
+                  </td>
+
+                  <td className="border p-2">
+                    {item.percentage || "-"}
+                  </td>
+
+                  <td className="border p-2">
+
+                    {item.photo_url ? (
+
+                      <a
+                        href={item.photo_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline font-semibold"
+                      >
+                        View Photo
+                      </a>
+
+                    ) : (
+                      "-"
+                    )}
+
+                  </td>
+
+                  <td className="border p-2">
+
+                    {item.marksheet_url ? (
+
+                      <a
+                        href={item.marksheet_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline font-semibold"
+                      >
+                        View Document
+                      </a>
+
+                    ) : (
+                      "-"
+                    )}
+
+                  </td>
+
+                  <td className="border p-2">
+
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        item.status === "Approved"
+                          ? "bg-green-100 text-green-700"
+                          : item.status === "Rejected"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {item.status || "Pending"}
+                    </span>
+
+                  </td>
+
+                  <td className="border p-2">
+
+                    <button
+                      onClick={() =>
+                        toggleHome(
+                          item.id,
+                          !!item.show_home
+                        )
+                      }
+                      className={`px-3 py-1 rounded-lg text-white font-bold ${
+                        item.show_home
+                          ? "bg-green-600"
+                          : "bg-gray-500"
+                      }`}
+                    >
+                      {item.show_home
+                        ? "Shown"
+                        : "Hidden"}
+                    </button>
+
+                  </td>
+
+                  <td className="border p-2">
+
+                    <div className="flex flex-col gap-2">
+
+                      {item.status !==
+                        "Approved" && (
+
+                        <button
+                          onClick={() =>
+                            updateStatus(
+                              item.id,
+                              "Approved"
+                            )
+                          }
+                          className="bg-green-600 text-white px-3 py-1 rounded-lg"
+                        >
+                          Approve
+                        </button>
+
+                      )}
+
+                      {item.status !==
+                        "Rejected" && (
+
+                        <button
+                          onClick={() =>
+                            updateStatus(
+                              item.id,
+                              "Rejected"
+                            )
+                          }
+                          className="bg-orange-500 text-white px-3 py-1 rounded-lg"
+                        >
+                          Reject
+                        </button>
+
+                      )}
+
+                      <button
+                        onClick={() =>
+                          deleteApplication(
+                            item.id,
+                            item.student_name
+                          )
+                        }
+                        className="bg-red-600 text-white px-3 py-1 rounded-lg"
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              ))
+
+            )}
+
+          </tbody>
+
+        </table>
 
       </div>
 
-    </div>
+      {/* ========================= */}
+      {/* SETTINGS */}
+      {/* ========================= */}
 
-    {/* Pratibha Settings */}
+      <div className="mt-10 bg-white rounded-3xl p-6 shadow-lg">
 
-<div className="mt-10 bg-white rounded-3xl p-6">
+        <h2 className="text-2xl font-bold mb-6">
+          ⚙️ Pratibha Settings
+        </h2>
 
-  <h2 className="text-2xl font-bold mb-6">
-    ⚙️ Pratibha Settings
-  </h2>
-  
+        <div className="grid md:grid-cols-2 gap-8">
 
-  <div className="grid md:grid-cols-2 gap-8">
+          {/* CATEGORIES */}
 
-    {/* Categories */}
+          <div>
 
-    <div>
+            <h3 className="text-xl font-bold mb-4">
+              📂 Categories
+            </h3>
 
-      <h3 className="text-xl font-bold mb-4">
-        📂 Categories
-      </h3>
+            <div className="flex gap-2 mb-4">
 
-      <div className="flex gap-2 mb-4">
+              <input
+                type="text"
+                value={newCategory}
+                onChange={(e) =>
+                  setNewCategory(
+                    e.target.value
+                  )
+                }
+                placeholder="New Category"
+                className="border p-3 rounded-xl flex-1 text-black"
+              />
 
-        <input
-          type="text"
-          value={newCategory}
-          onChange={(e) =>
-            setNewCategory(e.target.value)
-          }
-          placeholder="New Category"
-          className="border p-3 rounded-xl flex-1"
-        />
+              <button
+                onClick={addCategory}
+                className="bg-green-600 text-white px-4 rounded-xl"
+              >
+                Add
+              </button>
 
-        <button
-          onClick={addCategory}
-          className="bg-green-600 text-white px-4 rounded-xl"
-        >
-          Add
-        </button>
+            </div>
 
-      </div>
+            {categories.map((item) => (
 
-      {categories.map((item) => (
+              <div
+                key={item.id}
+                className="flex justify-between items-center bg-gray-100 p-3 rounded-xl mb-2"
+              >
 
-        <div
-          key={item.id}
-          className="flex justify-between items-center bg-gray-100 p-3 rounded-xl mb-2"
-        >
+                <span className="text-black">
+                  {item.value}
+                </span>
 
-          <span>{item.value}</span>
+                <button
+                  onClick={() =>
+                    deleteCategory(
+                      item.id
+                    )
+                  }
+                  className="bg-red-600 text-white px-3 py-1 rounded"
+                >
+                  Delete
+                </button>
 
-          <button
-            onClick={() =>
-              deleteCategory(item.id)
-            }
-            className="bg-red-600 text-white px-3 py-1 rounded"
-          >
-            Delete
-          </button>
+              </div>
+
+            ))}
+
+          </div>
+
+          {/* RULES */}
+
+          <div>
+
+            <h3 className="text-xl font-bold mb-4">
+              📜 Rules
+            </h3>
+
+            <div className="flex gap-2 mb-4">
+
+              <input
+                type="text"
+                value={newRule}
+                onChange={(e) =>
+                  setNewRule(
+                    e.target.value
+                  )
+                }
+                placeholder="New Rule"
+                className="border p-3 rounded-xl flex-1 text-black"
+              />
+
+              <button
+                onClick={addRule}
+                className="bg-green-600 text-white px-4 rounded-xl"
+              >
+                Add
+              </button>
+
+            </div>
+
+            {rules.map((item) => (
+
+              <div
+                key={item.id}
+                className="flex justify-between items-center bg-gray-100 p-3 rounded-xl mb-2"
+              >
+
+                <span className="text-black">
+                  {item.value}
+                </span>
+
+                <button
+                  onClick={() =>
+                    deleteRule(item.id)
+                  }
+                  className="bg-red-600 text-white px-3 py-1 rounded"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            ))}
+
+          </div>
 
         </div>
 
-      ))}
-
-    </div>
-
-    {/* Rules */}
-
-    <div>
-
-      <h3 className="text-xl font-bold mb-4">
-        📜 Rules
-      </h3>
-
-      <div className="flex gap-2 mb-4">
-
-        <input
-          type="text"
-          value={newRule}
-          onChange={(e) =>
-            setNewRule(e.target.value)
-          }
-          placeholder="New Rule"
-          className="border p-3 rounded-xl flex-1"
-        />
-
-        <button
-          onClick={addRule}
-          className="bg-green-600 text-white px-4 rounded-xl"
-        >
-          Add
-        </button>
-
-      </div>
-
-      {rules.map((item) => (
-
-        <div
-          key={item.id}
-          className="flex justify-between items-center bg-gray-100 p-3 rounded-xl mb-2"
-        >
-
-          <span>{item.value}</span>
-
-          <button
-            onClick={() =>
-              deleteRule(item.id)
-            }
-            className="bg-red-600 text-white px-3 py-1 rounded"
-          >
-            Delete
-          </button>
-
-        </div>
-
-      ))}
-
-    </div>
-
-  
-
-</div>
       </div>
 
     </main>
