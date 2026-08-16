@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
-function CertificateContent() {
+function IdCardContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
@@ -13,12 +13,15 @@ function CertificateContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      loadMember();
-    } else {
-      setLoading(false);
-    }
-  }, [id]);
+  if (id) {
+    loadMember();
+  } else {
+    setLoading(false);
+  }
+}, [id]);
+
+
+  
 
   async function loadMember() {
     const { data } = await supabase
@@ -26,216 +29,172 @@ function CertificateContent() {
       .select("*")
       .eq("id", id)
       .single();
+      console.log("MEMBER DATA:", data);
 
-    if (data) {
-      setMember(data);
-    }
+    if (data) setMember(data);
 
     setLoading(false);
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-3xl font-bold">
-        Loading...
-      </div>
-    );
-  }
+ 
 
-  if (!member) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-3xl text-red-600 font-bold">
-        Member Not Found
-      </div>
-    );
-  }
-
+if (loading) {
   return (
-    <main className="min-h-screen bg-slate-200 flex justify-center items-center p-6">
+    <div className="min-h-screen flex items-center justify-center">
+      Loading...
+    </div>
+  );
+}
+
+if (!member) {
+  return (
+    <div className="min-h-screen flex items-center justify-center text-red-600 font-bold">
+      Member Not Found
+    </div>
+  );
+}
+  return (
+    <main className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-6">
+
+      
 
       <div
-        className="relative bg-white border-[10px] border-yellow-500 rounded-[30px] shadow-2xl overflow-hidden"
+        id="id-card"
+        className="relative bg-white border-[8px] border-yellow-500 rounded-[25px] shadow-2xl overflow-hidden"
         style={{
-          width: "1150px",
-          height: "750px",
+          width: "400px",
+          height: "650px",
         }}
       >
-
         {/* Watermark */}
         <img
           src="/logo.png"
-          alt="Watermark"
-          className="absolute opacity-10 w-[500px] h-[500px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          alt="watermark"
+          className="absolute opacity-10 w-72 h-72 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         />
 
-        {/* Print + QR */}
-        <div className="absolute top-6 right-6 z-50 print:hidden">
-
-          <button
-            onClick={() => window.print()}
-            className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold"
-          >
-            🖨️ Print ID Card
-          </button>
-
-          <div className="mt-4 bg-white p-3 rounded-xl shadow">
-
-            <QRCode
-              value={`https://kpvp.vercel.app/certificate?id=${member.id}`}
-              size={120}
-            />
-
-            
-
-          </div>
-
-        </div>
-
         {/* Header */}
-        <div className="bg-gradient-to-r from-yellow-500 via-orange-500 to-orange-600 h-56 relative">
+        <div className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 h-28 relative">
 
-          <div className="absolute left-8 top-5 w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-xl bg-white">
-  <img
-    src="/logo.png"
-    alt="Logo"
-    className="w-full h-full object-cover"
-  />
-</div>
-
-          <div className="text-center pt-8">
-
-            <h1 className="text-6xl font-bold text-white">
-              कांटा परगना विकास परिषद
-            </h1>
-
-            <p className="text-2xl text-white mt-3">
-              मारवाड़ मीणा समाज कांटा परगना
-            </p>
-
-            <h2 className="text-3xl font-bold text-white mt-4">
-              MEMBER ID CARD
-            </h2>
-
-          </div>
-
-        </div>
-
-        {/* Content */}
-        <div className="flex px-10 py-8">
-
-          {/* Left */}
-          <div className="w-[35%] text-center">
-<div className="absolute top-85 left-22">
-  <div className="w-[250px] h-[300px] border-4 border-blue-600 rounded-lg overflow-hidden bg-white shadow-lg flex items-center justify-center">
+  <div className="flex items-center justify-center gap-3 pt-3">
 
     <img
-      src={
-        member.photo_url
-          ? member.photo_url
-          : "/default-user.png"
-      }
-      alt="Member"
-      className="w-full h-full object-cover object-top"
+      src="/logo.png"
+      alt="Logo"
+      className="w-20 h-20 rounded-full bg-white p-1"
     />
 
+    <div className="text-center">
+      <h1 className="text-white font-bold text-lg leading-tight">
+        कांटा परगना विकास परिषद
+      </h1>
+
+      <p className="text-white text-[10px]">
+        मारवाड़ मीणा समाज कांटा परगना
+      </p>
+    </div>
+
   </div>
-</div>
-    
-    
 
-            <h2 className="mt-5 text-5xl font-extrabold text-blue-700 tracking-wide">
-            {member.member_name}
-            </h2>
-
-       
-
-          </div>
-
-          {/* Right */}
-          <div className="w-[65%] pl-10">
-
-            <table className="w-full text-3xl">
-
-              <tbody>
-
-                <tr>
-                  <td className="font-bold py-4 w-72">
-                    पिता / पति
-                  </td>
-                  <td>
-                    :
-                  </td>
-                  <td>
-                    {member.husband_name ||
-                      member.father_name}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td className="font-bold py-4">
-                    ग्राम
-                  </td>
-                  <td>
-                    :
-                  </td>
-                  <td>
-                    {member.village}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td className="font-bold py-4">
-                    मोबाइल
-                  </td>
-                  <td>
-                    :
-                  </td>
-                  <td>
-                    {member.mobile}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td className="font-bold py-4">
-                    व्यवसाय
-                  </td>
-                  <td>
-                    :
-                  </td>
-                  <td>
-                    {member.profession || "-"}
-                  </td>
-                </tr>
-
-                <tr>
-  <td className="font-bold py-4">
-    Verification
-  </td>
-  <td>:</td>
-  <td>
-    <span className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2 rounded-full font-bold shadow-lg">
-      ✓ Digitally Verified
+  <div className="flex justify-center mt-2">
+    <span className="bg-white text-red-600 text-xs font-bold px-4 py-1 rounded-full shadow">
+      सदस्यता प्रमाण पत्र
     </span>
-  </td>
-</tr>
+  </div>
 
-              </tbody>
-
-            </table>
+</div>
+        {/* Photo */}
+        <div className="flex justify-center mt-6">
+          <div className="w-30 h-40 border-2 border-blue-600 rounded-lg overflow-hidden shadow-lg">
+            
+            <img
+  src={
+    member.photo_url
+      ? member.photo_url
+      : "/default-user.png"
+  }
+  alt="Member"
+  className="w-full h-full object-cover"
+/>
 
           </div>
-
         </div>
 
+        {/* Name */}
+        <h2 className="text-center text-xl font-bold text-blue-700 mt-5">
+          {member.member_name}
+        </h2>
+
+        <p className="text-center text-xs text-gray-600 mb-3">
+          Reg No : {member.registration_no}
+        </p>
+
+        {/* Details */}
+        <div className="px-7">
+          <table className="w-full text-sm">
+            <tbody>
+
+              <tr>
+                <td className="font-bold py-3 w-25">
+                  {member.relation_type === "Father"
+                    ? "पिता"
+                    : "पति"}
+                </td>
+                <td>:</td>
+                <td>{member.relation_name}</td>
+              </tr>
+
+              <tr>
+                <td className="font-bold py-3">
+                  ग्राम
+                </td>
+                <td>:</td>
+                <td>{member.village}</td>
+              </tr>
+
+              <tr>
+                <td className="font-bold py-3">
+                  मोबाइल
+                </td>
+                <td>:</td>
+                <td>{member.mobile}</td>
+              </tr>
+
+              <tr>
+                <td className="font-bold py-3">
+                  व्यवसाय
+                </td>
+                <td>:</td>
+                <td>{member.profession || "-"}</td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        
+
+        {/* QR */}
+        <div className="absolute bottom-1 right-1 text-center">
+
+  <div id="qr-area">
+  <QRCode value={`https://kpvp.vercel.app/certificate?id=${member.id}`} size={65} />
+</div>
+
+
+  <p className="text-[8px] text-green-700 font-bold mt-1">
+    ✓ Digitally Verified
+  </p>
+
+</div>
+
         {/* Footer */}
-        <div className="absolute bottom-8 right-12">
+        <div className="absolute bottom-4 left-0 right-0 text-center">
+          <div className="border-t border-black w-24 mx-auto"></div>
 
-          <div className="border-t-2 border-black w-56"></div>
-
-          <p className="mt-2 text-xl font-bold text-center">
+          <p className="text-xs font-bold mt-1">
             अध्यक्ष
           </p>
-
         </div>
 
       </div>
@@ -244,16 +203,16 @@ function CertificateContent() {
   );
 }
 
-export default function CertificatePage() {
+export default function IdCardPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center text-3xl font-bold">
-          Loading Certificate...
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
         </div>
       }
     >
-      <CertificateContent />
+      <IdCardContent />
     </Suspense>
   );
 }
