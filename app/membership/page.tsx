@@ -92,14 +92,39 @@ export default function MembershipPage() {
     },
   ]);
 
-    if (error) {
-      setMessage("❌ Error: " + error.message);
-      return;
-    }
+   if (error) {
+  setMessage("❌ Error: " + error.message);
+  return;
+}
 
-    setMessage(
-      `✅ आवेदन सफलतापूर्वक जमा हो गया | Registration No: ${registration_no}`
-    );
+// Telegram Notification
+try {
+  await fetch("/api/telegram", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message: `🔔 <b>नया सदस्यता आवेदन</b>
+
+👤 <b>नाम:</b> ${formData.member_name}
+👨‍👦 <b>${relationType === "Father" ? "पिता" : "पति"}:</b> ${relationName}
+🏠 <b>ग्राम:</b> ${formData.village}
+📱 <b>मोबाइल:</b> ${formData.mobile}
+💼 <b>व्यवसाय:</b> ${formData.profession || "नहीं दिया"}
+🆔 <b>Registration No:</b> ${registration_no}
+
+⏳ <b>Status:</b> Pending`,
+    }),
+  });
+} catch (telegramError) {
+ 
+  console.error("Telegram notification error:", telegramError);
+}
+
+setMessage(
+  `✅ आवेदन सफलतापूर्वक जमा हो गया | Registration No: ${registration_no}`
+);
 
     setFormData({
   member_name: "",
