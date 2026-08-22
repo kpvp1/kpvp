@@ -14,6 +14,7 @@ export default function MembershipPage() {
   village: "",
   mobile: "",
   profession: "",
+  dob: "",
 });
 
   const [message, setMessage] = useState("");
@@ -82,7 +83,7 @@ export default function MembershipPage() {
       village: formData.village,
       mobile: formData.mobile,
       profession: formData.profession,
-
+      dob: formData.dob,
       relation_type: relationType,
       relation_name: relationName,
 
@@ -131,6 +132,7 @@ setMessage(
   village: "",
   mobile: "",
   profession: "",
+  dob: "",
 });
 
 setRelationType("Father");
@@ -184,7 +186,24 @@ setRelationName("");
       required
     />
   </div>
+<div>
+  <label className="block mb-2 font-semibold text-gray-700">
+    जन्म तिथि *
+  </label>
 
+  <input
+    type="date"
+    value={formData.dob}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        dob: e.target.value,
+      })
+    }
+    className="w-full h-14 px-4 border-2 border-blue-200 rounded-xl bg-white text-lg focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none"
+    required
+  />
+</div>
   <div>
     <label className="block mb-2 font-semibold text-gray-700">
       ग्राम *

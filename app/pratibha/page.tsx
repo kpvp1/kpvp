@@ -75,6 +75,7 @@ async function loadRegistrationStatus() {
     );
   }
 }
+
 async function loadSettings() {
   const { data, error } = await supabase
     .from("pratibha_settings")
