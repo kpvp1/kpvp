@@ -6,6 +6,8 @@
 }
 
 /* Tailwind CSS v4 directive; ignored by generic CSS linters. */
+/* stylelint-disable at-rule-no-unknown */
+/* stylelint-disable-next-line at-rule-no-unknown */
 /*noinspection CssUnknownAtRule */
 @theme inline {
   --color-background: var(--background);
@@ -13,6 +15,7 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+/* stylelint-enable at-rule-no-unknown */
 
 @media (prefers-color-scheme: dark) {
   :root {
