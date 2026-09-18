@@ -3,19 +3,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-/* Tailwind CSS v4 directive; ignored by generic CSS linters. */
-/* stylelint-disable at-rule-no-unknown */
-/* stylelint-disable-next-line at-rule-no-unknown */
-/*noinspection CssUnknownAtRule */
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
-/* stylelint-enable at-rule-no-unknown */
+
+/* Tailwind theme variables are available via standard CSS custom properties.
+   This avoids editor warnings for the Tailwind v4 `@theme` at-rule while
+   preserving the same variable names for utility usage. */
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -131,3 +127,139 @@ body {
 .animate-member-scroll {
   animation: memberScroll 45s linear infinite;
 }
+@keyframes membersScroll {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-members {
+  animation: membersScroll 30s linear infinite;
+}
+/* ========================================
+   🌸 DEVOTIONAL BACKGROUND
+======================================== */
+
+.devotional-petals {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.devotional-petals span {
+  position: absolute;
+  top: -60px;
+  font-size: 22px;
+  opacity: 0;
+  animation: devotional-fall linear infinite;
+}
+
+/* अलग-अलग फूलों की position */
+
+.devotional-petals span:nth-child(1) {
+  left: 5%;
+  animation-duration: 12s;
+  animation-delay: 0s;
+}
+
+.devotional-petals span:nth-child(2) {
+  left: 15%;
+  animation-duration: 15s;
+  animation-delay: 3s;
+}
+
+.devotional-petals span:nth-child(3) {
+  left: 25%;
+  animation-duration: 13s;
+  animation-delay: 6s;
+}
+
+.devotional-petals span:nth-child(4) {
+  left: 37%;
+  animation-duration: 17s;
+  animation-delay: 1s;
+}
+
+.devotional-petals span:nth-child(5) {
+  left: 48%;
+  animation-duration: 14s;
+  animation-delay: 5s;
+}
+
+.devotional-petals span:nth-child(6) {
+  left: 60%;
+  animation-duration: 18s;
+  animation-delay: 2s;
+}
+
+.devotional-petals span:nth-child(7) {
+  left: 70%;
+  animation-duration: 13s;
+  animation-delay: 7s;
+}
+
+.devotional-petals span:nth-child(8) {
+  left: 80%;
+  animation-duration: 16s;
+  animation-delay: 4s;
+}
+
+.devotional-petals span:nth-child(9) {
+  left: 90%;
+  animation-duration: 14s;
+  animation-delay: 8s;
+}
+
+.devotional-petals span:nth-child(10) {
+  left: 55%;
+  animation-duration: 20s;
+  animation-delay: 10s;
+}
+
+
+/* 🌸 Flower Falling Animation */
+
+@keyframes devotional-fall {
+
+  0% {
+    transform:
+      translateY(-80px)
+      translateX(0)
+      rotate(0deg);
+
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.8;
+  }
+
+  30% {
+    transform:
+      translateY(30vh)
+      translateX(35px)
+      rotate(100deg);
+  }
+
+  60% {
+    transform:
+      translateY(65vh)
+      translateX(-35px)
+      rotate(220deg);
+  }
+
+  100% {
+    transform:
+      translateY(115vh)
+      translateX(30px)
+      rotate(360deg);
+
+    opacity: 0;
+  }
+}
+
+

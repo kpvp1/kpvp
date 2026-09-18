@@ -1,3 +1,8 @@
+import { Yatra_One } from "next/font/google";
+const yatraOne = Yatra_One({
+  weight: "400",
+  subsets: ["devanagari"],
+});
 import "./globals.css";
 import Navbar from "../components/Navbar";
 
@@ -13,6 +18,7 @@ export default function RootLayout({
         <Navbar />
 
         <div className="pt-24">
+          
           {children}
         </div>
 

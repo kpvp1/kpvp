@@ -76,11 +76,11 @@ export default function StatusPage() {
             />
 
             <h1 className="text-2xl md:text-4xl font-extrabold text-blue-900">
-              कांटा परगना विकास परिषद
+              मीणा जाति सेवा संस्थान
             </h1>
 
             <p className="text-gray-600 font-semibold mt-1">
-              Kanta Pargana Vikas Parishad
+              meena jati sewa sansthan
             </p>
 
             <div className="w-24 h-1 bg-yellow-500 mx-auto my-4 rounded-full" />
@@ -159,11 +159,11 @@ export default function StatusPage() {
               />
 
               <h1 className="text-2xl md:text-4xl font-extrabold">
-                कांटा परगना विकास परिषद
+                मीणा जाति सेवा संस्थान
               </h1>
 
               <p className="text-blue-100 mt-1">
-                Kanta Pargana Vikas Parishad • 52 Villages
+                meena jati sewa sansthan • 52 Villages
               </p>
 
               <div className="mt-5 inline-block border-2 border-yellow-400
@@ -213,10 +213,10 @@ export default function StatusPage() {
                 />
 
                 <Detail
-                  label="Father Name"
-                  hindi="पिता का नाम"
-                  value={member.father_name}
-                />
+  label="Relation Name"
+  hindi="पिता / पति का नाम"
+  value={member.relation_name}
+/>
 
                 <Detail
                   label="Village"
@@ -310,27 +310,52 @@ export default function StatusPage() {
                 )}
 
               {/* Rejected */}
-              {member.status === "Rejected" && (
-                <div className="mt-7 bg-red-50 border-2
-                  border-red-200 rounded-2xl p-5 text-center">
+              {/* Rejected */}
+{member.status === "Rejected" && (
+  <div className="mt-7 bg-red-50 border-2
+    border-red-200 rounded-2xl p-5">
 
-                  <h3 className="text-xl font-bold text-red-700">
-                    ❌ सदस्यता आवेदन अस्वीकृत
-                  </h3>
+    <div className="text-center">
 
-                  <p className="text-red-600 mt-1">
-                    अधिक जानकारी के लिए KPVP समिति से संपर्क करें।
-                  </p>
+      <h3 className="text-xl font-bold text-red-700">
+        ❌ सदस्यता आवेदन अस्वीकृत
+      </h3>
 
-               </div>
-              )}
+      <p className="text-red-600 mt-1">
+        आपका आवेदन स्वीकृत नहीं किया गया है।
+      </p>
+
+    </div>
+
+    {/* Rejection Comment */}
+    {member.rejection_comment && (
+      <div className="mt-5 bg-white border border-red-200
+        rounded-xl p-4">
+
+        <p className="text-sm font-bold text-red-700 mb-1">
+          📝 अस्वीकृति का कारण
+        </p>
+
+        <p className="text-gray-700 leading-6">
+          {member.rejection_comment}
+        </p>
+
+      </div>
+    )}
+
+    <p className="text-gray-500 text-sm text-center mt-4">
+      अधिक जानकारी के लिए KPVP समिति से संपर्क करें।
+    </p>
+
+  </div>
+)}
             </div>
 
             {/* Footer */}
             <div className="bg-gray-50 border-t px-6 py-5 text-center">
 
               <p className="text-gray-500 text-sm">
-                कांटा परगना विकास परिषद • 52 गाँव
+                मीणा जाति सेवा संस्थान • 52 गाँव
               </p>
 
               <p className="text-gray-400 text-xs mt-1">

@@ -11,85 +11,78 @@ export default function RecentMembers() {
   }, []);
 
   async function loadMembers() {
-    const { data, error } = await supabase
-      .from("members")
-      .select("id, member_name, village, profession, photo_url")
-      .eq("status", "Approved")
-      .order("id", { ascending: false })
-      .limit(20);
+  const { data } = await supabase
+    .from("members")
+    .select("*")
+    .eq("status", "Approved")
+    .order("id", { ascending: false })
+    .limit(10); // केवल Latest 10
 
-    if (error) {
-      console.error("Members loading error:", error);
-      return;
-    }
-
-    if (data) {
-      setMembers(data);
-    }
+  if (data) {
+    setMembers(data);
   }
-
-  if (members.length === 0) {
-    return null;
-  }
+}
 
   return (
-    <section className="py-10 px-4 bg-gradient-to-b from-blue-50 to-white">
-      <div className="max-w-5xl mx-auto">
+    <div className="bg-white rounded-3xl shadow-xl p-6">
 
-        {/* Heading */}
-        <div className="text-center mb-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-blue-900">
-            🎉 नवीन स्वीकृत सदस्य
-          </h2>
+      <h2 className="text-3xl font-bold text-center text-blue-900 mb-6">
+        🎉 🌟 नवीन सदस्य
+      </h2>
+    <h2 className="text-3xl font-bold text-center text-blue-900 mb-6">
+  🎉 मीणा जाति सेवा संस्थान परिवार में आपका स्वागत है
+</h2>
+     <div
+  className={
+    members.length > 5
+      ? "h-[450px] overflow-hidden"
+      : ""
+  }
+>
 
-          <p className="text-gray-600 mt-2">
-            कांटा परगना विकास परिषद परिवार में आपका स्वागत है
-          </p>
-        </div>
+        <div
+  className={
+    members.length > 5
+      ? "animate-members space-y-4"
+      : "space-y-4"
+  }
+>
+  {(members.length > 5
+    ? [...members, ...members]
+    : members
+  ).map((member, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-4 border rounded-2xl p-3 bg-gray-50"
+            >
 
-        {/* Scrolling List */}
-        <div className="relative h-[420px] overflow-hidden rounded-3xl bg-white shadow-xl border border-blue-100">
+              <img
+                src={member.photo_url || "/logo.png"}
+                alt=""
+                className="w-16 h-16 rounded-full object-cover"
+              />
 
-          <div className="animate-member-scroll">
+              <div>
+                <h3 className="font-bold text-lg">
+                  {member.member_name}
+                </h3>
 
-            {members.map((member) => (
-              <div
-                key={member.id}
-                className="mx-4 my-3 flex items-center gap-4 p-4 rounded-2xl border border-blue-100 bg-white shadow-sm"
-              >
+                <p className="text-gray-600">
+                  📍 {member.village}
+                </p>
 
-                {/* Photo */}
-                <img
-                  src={member.photo_url || "/logo.png"}
-                  alt={member.member_name}
-                  className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-blue-100 shrink-0"
-                />
-
-                {/* Details */}
-                <div className="min-w-0">
-
-                  <h3 className="text-lg md:text-xl font-bold text-blue-900 truncate">
-                    {member.member_name}
-                  </h3>
-
-                  <p className="text-gray-700">
-                    🏠 {member.village}
-                  </p>
-
-                  <p className="text-sm text-blue-600">
-                    💼 {member.profession || "व्यवसाय नहीं दिया"}
-                  </p>
-
-                </div>
-
+                <p className="text-blue-700 text-sm">
+                  💼 {member.profession}
+                </p>
               </div>
-            ))}
 
-          </div>
+            </div>
+          ))}
 
         </div>
 
       </div>
-    </section>
+
+    </div>
   );
 }

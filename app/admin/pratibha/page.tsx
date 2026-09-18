@@ -1,5 +1,5 @@
 "use client";
-
+import AdminBackButton from "../../../components/AdminBackButton";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -442,7 +442,7 @@ export default function AdminPratibhaPage() {
 
   return (
     <main className="min-h-screen p-6">
-
+<AdminBackButton />
       {/* ========================= */}
       {/* REGISTRATION CONTROL */}
       {/* ========================= */}

@@ -1,5 +1,5 @@
 "use client";
-
+import AdminBackButton from "../../../components/AdminBackButton";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
@@ -84,10 +84,15 @@ export default function AdminContactPage() {
     "w-full border p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400";
 
   return (
-    <main className="min-h-screen p-6 bg-gray-100">
+    <main className="min-h-screen p-8">
+    <AdminBackButton />
+    
+      
       <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl p-8">
+        
 
         <h1 className="text-3xl font-bold text-blue-800 mb-8">
+         
           📞 Contact Settings
         </h1>
 

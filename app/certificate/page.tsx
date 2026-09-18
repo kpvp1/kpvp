@@ -86,11 +86,11 @@ if (!member) {
 
     <div className="text-center">
       <h1 className="text-white font-bold text-lg leading-tight">
-        कांटा परगना विकास परिषद
+        मीणा जाति सेवा संस्थान
       </h1>
 
       <p className="text-white text-[10px]">
-        मारवाड़ मीणा समाज कांटा परगना
+        मुख्यालय : मारवाड़ जंक्शन
       </p>
     </div>
 

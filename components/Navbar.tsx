@@ -13,7 +13,9 @@ export default function Navbar() {
             </h1>
 
             <p className="text-white text-xs">
-              कांटा परगना विकास परिषद
+              
+
+              मीणा जाति सेवा संस्थान
             </p>
           </a>
         </div>
@@ -28,7 +30,7 @@ export default function Navbar() {
             हमारे बारे में
           </a>
 
-          <a href="/#gallery" className="hover:text-yellow-300">
+          <a href="/gallery" className="hover:text-yellow-300">
             गैलरी
           </a>
 
@@ -36,7 +38,7 @@ export default function Navbar() {
             प्रतिभा सम्मान
           </a>
 
-          <a href="/#committee" className="hover:text-yellow-300">
+          <a href="/committee" className="hover:text-yellow-300">
             कार्यकारिणी
           </a>
 
@@ -46,7 +48,7 @@ export default function Navbar() {
 
           
 
-          <Link href="/contact">Contact Us</Link>
+          <Link href="/contact">संपर्क </Link>
 
         </div>
 

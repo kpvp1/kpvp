@@ -1,24 +1,63 @@
 "use client";
-
+import AdminBackButton from "../../../components/AdminBackButton";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
 export default function MembersPage() {
   const [members, setMembers] = useState<any[]>([]);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [rejectingMember, setRejectingMember] = useState<any | null>(null);
+const [rejectionComment, setRejectionComment] = useState("");
 
   useEffect(() => {
     loadMembers();
   }, []);
 
   async function updateStatus(id: number, status: string) {
-    await supabase
-      .from("members")
-      .update({ status })
-      .eq("id", id);
+  const { error } = await supabase
+    .from("members")
+    .update({
+      status,
+      rejection_comment: status === "Approved" ? null : undefined,
+    })
+    .eq("id", id);
 
-    loadMembers();
+  if (error) {
+    alert("Status update failed: " + error.message);
+    return;
   }
+
+  loadMembers();
+}
+
+async function rejectMember() {
+  if (!rejectingMember) return;
+
+  if (!rejectionComment.trim()) {
+    alert("कृपया rejection का कारण लिखें।");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("members")
+    .update({
+      status: "Rejected",
+      rejection_comment: rejectionComment.trim(),
+    })
+    .eq("id", rejectingMember.id);
+
+  if (error) {
+    alert("Reject failed: " + error.message);
+    return;
+  }
+
+  setRejectingMember(null);
+  setRejectionComment("");
+
+  loadMembers();
+}
+
+
 
   async function deleteMember(id: number, memberName: string) {
     const confirmed = window.confirm(
@@ -64,7 +103,7 @@ export default function MembersPage() {
 
   return (
     <main className="min-h-screen p-6">
-
+<AdminBackButton />
       <h1 className="text-3xl font-bold text-yellow-300 mb-6">
         Registered Members
       </h1>
@@ -77,7 +116,7 @@ export default function MembersPage() {
             <tr>
               <th className="p-3">ID</th>
               <th className="p-3">नाम</th>
-              <th className="p-3">पिता का नाम</th>
+              <th className="p-3">पिता / पति का नाम</th>
               <th className="p-3">गाँव</th>
               <th className="p-3">मोबाइल</th>
               <th className="p-3">फोटो</th>
@@ -104,7 +143,7 @@ export default function MembersPage() {
                 </td>
 
                 <td className="p-3">
-                  {m.father_name}
+                  {m.relation_name}
                 </td>
 
                 <td className="p-3">
@@ -161,23 +200,16 @@ export default function MembersPage() {
 
                   {/* Reject */}
                   <button
-                    onClick={() =>
-                      updateStatus(m.id, "Rejected")
-                    }
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                  >
-                    Reject
-                  </button>
+  onClick={() => {
+    setRejectingMember(m);
+    setRejectionComment(m.rejection_comment || "");
+  }}
+  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+>
+  Reject
+  </button>
 
-                  {/* Certificate */}
-                  <a
-                    href={`/certificate?id=${m.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded inline-block"
-                  >
-                    Certificate
-                  </a>
+                  
 
                   {/* Delete */}
                   <button
@@ -201,8 +233,64 @@ export default function MembersPage() {
 
         </table>
 
-      </div>
+    </div>
 
-    </main>
+    {/* Reject Comment Popup */}
+    {rejectingMember && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+
+        <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6">
+
+          <h2 className="text-2xl font-bold text-red-700 text-center">
+            सदस्यता आवेदन अस्वीकृत करें
+          </h2>
+
+          <p className="text-gray-600 text-center mt-2">
+            {rejectingMember.member_name}
+          </p>
+
+          <label className="block mt-6 text-gray-700 font-bold">
+            अस्वीकृति का कारण / Comment
+          </label>
+
+          <textarea
+            value={rejectionComment}
+            onChange={(e) => setRejectionComment(e.target.value)}
+            placeholder="उदाहरण: आवश्यक दस्तावेज पूर्ण नहीं हैं..."
+            rows={5}
+            className="w-full mt-2 p-4 border-2 border-gray-200 rounded-xl
+            text-gray-900 outline-none focus:border-red-500
+            resize-none"
+          />
+
+          <div className="flex gap-3 mt-5">
+
+            <button
+              onClick={() => {
+                setRejectingMember(null);
+                setRejectionComment("");
+              }}
+              className="flex-1 bg-gray-200 hover:bg-gray-300
+              text-gray-800 font-bold py-3 rounded-xl"
+            >
+              रद्द करें
+            </button>
+
+            <button
+              onClick={rejectMember}
+              className="flex-1 bg-red-600 hover:bg-red-700
+              text-white font-bold py-3 rounded-xl"
+            >
+              ❌ Reject करें
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+    )}
+
+  </main>
   );
 }

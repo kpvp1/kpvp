@@ -1,5 +1,5 @@
 "use client";
-
+import AdminBackButton from "../../../components/AdminBackButton";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
@@ -32,7 +32,7 @@ export default function CommitteePage() {
 
   return (
     <main className="min-h-screen p-8">
-
+<AdminBackButton />
       <h1 className="text-4xl font-bold text-yellow-300 mb-8">
         👨‍💼 Committee Management
       </h1>
