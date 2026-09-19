@@ -96,11 +96,11 @@ function PratibhaCertificateContent() {
           />
 
           <h1 className="text-5xl font-bold text-red-700 mt-2">
-            कांटा परगना विकास परिषद
+            मीणा जाति सेवा संस्थान
           </h1>
 
           <p className="text-2xl text-blue-700 font-semibold mt-2">
-            मारवाड़ मीणा समाज कांटा परगना
+            मुख्यालय : मारवाड़ जंक्शन
           </p>
 
           <div className="inline-block mt-4 px-10 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full shadow-lg">

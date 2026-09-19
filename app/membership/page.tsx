@@ -5,27 +5,30 @@ import { supabase } from "../../lib/supabase";
 
 export default function MembershipPage() {
 
+  const [loading, setLoading] = useState(false);
+
   const [photo, setPhoto] = useState<File | null>(null);
   const [relationType, setRelationType] = useState("Father");
   const [relationName, setRelationName] = useState("");
-  
+
   const [formData, setFormData] = useState({
-  member_name: "",
-  village: "",
-  mobile: "",
-  profession: "",
-  dob: "",
-});
+    member_name: "",
+    village: "",
+    mobile: "",
+    profession: "",
+    dob: "",
+  });
 
   const [message, setMessage] = useState("");
 
   async function handleSubmit(e: any) {
     e.preventDefault();
-
+    setLoading(true);
     // Mobile Validation
 
     if (!/^[0-9]{10}$/.test(formData.mobile)) {
       setMessage("❌ कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें");
+      setLoading(false);
       return;
     }
 
@@ -42,6 +45,7 @@ export default function MembershipPage() {
       setMessage(
         "❌ यह सदस्य पहले से पंजीकृत है।"
       );
+      setLoading(false);
       return;
     }
 
@@ -61,6 +65,7 @@ export default function MembershipPage() {
 
       if (uploadError) {
         setMessage(uploadError.message);
+        setLoading(false);
         return;
       }
 
@@ -95,6 +100,7 @@ export default function MembershipPage() {
 
    if (error) {
   setMessage("❌ Error: " + error.message);
+  setLoading(false);
   return;
 }
 
@@ -126,6 +132,7 @@ try {
 setMessage(
   `✅ आवेदन सफलतापूर्वक जमा हो गया | Registration No: ${registration_no}`
 );
+setLoading(false);
 
     setFormData({
   member_name: "",
@@ -158,7 +165,7 @@ setRelationName("");
   </h1>
 
   <p className="text-gray-500 mt-2">
-    कांटा परगना विकास परिषद (52 गाँव)
+    मीणा जाति सेवा संस्थान (52 गाँव)
   </p>
 </div>
 
@@ -328,9 +335,16 @@ setRelationName("");
 
           <button
   type="submit"
-  className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-lg font-bold rounded-xl shadow-lg hover:scale-[1.02] transition"
+  disabled={loading}
+  className={`w-full h-14 text-white text-lg font-bold rounded-xl shadow-lg transition ${
+    loading
+      ? "bg-gray-500 cursor-not-allowed"
+      : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-[1.02]"
+  }`}
 >
-  सदस्यता आवेदन करें
+  {loading
+    ? "⏳ फॉर्म सबमिट हो रहा है..."
+    : "सदस्यता आवेदन करें"}
 </button>
 
         </form>

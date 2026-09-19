@@ -290,28 +290,22 @@ async function loadStudents() {
 
 {/* Religious Gurus Section */}
 <section className="max-w-6xl mx-auto px-4 md:px-6 py-16">
-
   <div className="text-center mb-8">
     <h2 className="text-3xl md:text-4xl font-bold text-yellow-300">
       🙏पूज्य संत-महापुरुष🙏
     </h2>
 
     <p className="text-white/80 mt-3 text-base md:text-lg">
-      
       ॥ जानुन्दा बगेची के संत ॥
-
-जानुन्दा बगेची की पावन संत परंपरा श्रद्धा, भक्ति, तप और आध्यात्मिक चेतना की अमूल्य धरोहर है। यहाँ के संतों ने समाज को धर्म, सेवा, सदाचार और एकता का मार्ग दिखाया है।
+      <br />
+      जानुन्दा बगेची की पावन संत परंपरा श्रद्धा, भक्ति, तप और आध्यात्मिक चेतना की अमूल्य धरोहर है। यहाँ के संतों ने समाज को धर्म, सेवा, सदाचार और एकता का मार्ग दिखाया है।
     </p>
   </div>
 
-  {/* Horizontal Cards */}
-  <div className="overflow-x-auto scrollbar-hide">
-    <div className="flex gap-5 min-w-max pb-4">
-
-      {/* Bhakar Das Ji */}
-     
-<div className="w-64 md:w-60 shrink-0 h-[430px] bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-4 text-center shadow-2xl">
-  <img
+  <div className="overflow-hidden">
+    <div className="flex gap-5 min-w-max pb-4 animate-guru-scroll">
+      <div className="w-64 md:w-60 shrink-0 h-[430px] bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-4 text-center shadow-2xl">
+        <img
           src="/gurus/bhakar-das.jpg"
           alt="परम पूज्य भाखरदास जी महाराज"
           className="w-full h-72 object-cover rounded-2xl"
@@ -326,8 +320,6 @@ async function loadStudents() {
         </p>
       </div>
 
-
-{/* Bhur Das Ji */}
       <div className="w-64 md:w-60 shrink-0 h-[430px] bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-4 text-center shadow-2xl">
         <img
           src="/gurus/bhur-das.jpg"
@@ -344,11 +336,6 @@ async function loadStudents() {
         </p>
       </div>
 
-
-
-      
-
-      {/* Ram Das Ji */}
       <div className="w-64 md:w-60 shrink-0 h-[430px] bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-4 text-center shadow-2xl">
         <img
           src="/gurus/ram-das.jpg"
@@ -365,47 +352,38 @@ async function loadStudents() {
         </p>
       </div>
 
-{/* Bhakti Das Ji */}
-<div className="w-64 md:w-60 shrink-0 relative pt-0 text-center">
+      <div className="w-64 md:w-60 shrink-0 relative pt-0 text-center">
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
+          <div className="bg-yellow-400 text-black text-sm font-bold py-2 px-5 rounded-full shadow-lg">
+            वर्तमान गद्दीपति
+          </div>
+        </div>
 
-  {/* Badge - Frame के बाहर ऊपर */}
-  <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
-    <div className="bg-yellow-400 text-black text-sm font-bold py-2 px-5 rounded-full shadow-lg">
-      वर्तमान गद्दीपति
-    </div>
-  </div>
+        <div className="h-[430px] bg-white/10 backdrop-blur-md border border-yellow-300/40 rounded-3xl p-4 text-center shadow-2xl">
+          <img
+            src="/gurus/bhakti-das.jpg"
+            alt="परम पूज्य बाल योगी भक्तिदास जी महाराज"
+            className="w-full h-72 object-cover rounded-2xl"
+          />
 
-  {/* Main Frame - बाकी सभी के बिल्कुल बराबर */}
-  <div className="h-[430px] bg-white/10 backdrop-blur-md border border-yellow-300/40 rounded-3xl p-4 text-center shadow-2xl">
+          <h3 className="mt-4 text-xl font-bold text-yellow-300">
+            परम पूज्य बाल योगी भक्तिदास जी महाराज
+          </h3>
 
-    <img
-      src="/gurus/bhakti-das.jpg"
-      alt="परम पूज्य बाल योगी भक्तिदास जी महाराज"
-      className="w-full h-72 object-cover rounded-2xl"
-    />
-
-    <h3 className="mt-4 text-xl font-bold text-yellow-300">
-      परम पूज्य बाल योगी भक्तिदास जी महाराज
-    </h3>
-
-    <div className="mt-3 inline-block">
-  <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg border border-yellow-300/50">
-    👑 वर्तमान गद्दीपति
-  </div>
-</div>
-
-  </div>
-
-</div>
+          <div className="mt-3 inline-block">
+            <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow-lg border border-yellow-300/50">
+              👑 वर्तमान गद्दीपति
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <p className="text-center text-white/50 text-sm mt-2 md:hidden">
     ← दाएँ-बाएँ स्वाइप करें →
   </p>
-
 </section>
-
 
       {/* Today's Birthday */}
       <div className="max-w-6xl mx-auto mt-10">

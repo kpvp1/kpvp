@@ -262,4 +262,25 @@ body {
   }
 }
 
+@keyframes guruScroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(calc(-50%));
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-guru-scroll {
+  width: max-content;
+  animation: guruScroll 25s linear infinite;
+}
+.animate-guru-scroll:hover {
+  animation-play-state: paused;
+}
 

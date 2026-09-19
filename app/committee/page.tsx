@@ -38,7 +38,7 @@ export default function CommitteePage() {
           </h1>
 
           <p className="text-white/80 mt-3">
-            कांटा परगना विकास परिषद की कार्यकारिणी
+            मीणा जाति सेवा संस्थान की कार्यकारिणी
           </p>
         </div>
 

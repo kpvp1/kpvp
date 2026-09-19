@@ -45,7 +45,7 @@ export default function ContactPage() {
           </h1>
 
           <p className="text-gray-500 mt-2">
-            कांटा परगना विकास परिषद
+            मीणा जाति सेवा संस्थान से संपर्क करने के लिए नीचे दिए गए विवरण का उपयोग करें।
           </p>
         </div>
 

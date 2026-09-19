@@ -28,7 +28,7 @@ export default function MembershipPopup() {
         />
 
         <h2 className="text-2xl font-bold text-blue-800">
-          कांटा परगना विकास परिषद
+          🎉 मीणा जाति सेवा संस्थान
         </h2>
 
         <p className="mt-4 text-gray-700">

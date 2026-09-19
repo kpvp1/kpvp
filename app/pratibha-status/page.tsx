@@ -68,11 +68,11 @@ export default function PratibhaStatusPage() {
             />
 
             <h1 className="text-2xl md:text-4xl font-extrabold text-blue-900">
-              कांटा परगना विकास परिषद
+              मीणा जाति सेवा संस्थान
             </h1>
 
             <p className="text-gray-600 font-semibold mt-1">
-              Kanta Pargana Vikas Parishad • 52 Villages
+              मीणा जाति सेवा संस्थान • 52 गाँव
             </p>
 
             <div className="w-24 h-1 bg-yellow-500 mx-auto my-4 rounded-full" />
@@ -155,11 +155,11 @@ export default function PratibhaStatusPage() {
               />
 
               <h1 className="text-2xl md:text-4xl font-extrabold">
-                कांटा परगना विकास परिषद
+                मीणा जाति सेवा संस्थान
               </h1>
 
               <p className="text-blue-100 mt-1">
-                Kanta Pargana Vikas Parishad • 52 Villages
+                meena jati sewa sansthan • 52 Villages
               </p>
 
               <div className="mt-5 inline-block border-2 border-yellow-400
@@ -348,7 +348,7 @@ export default function PratibhaStatusPage() {
             <div className="bg-gray-50 border-t px-6 py-5 text-center">
 
               <p className="text-gray-500 text-sm">
-                कांटा परगना विकास परिषद • 52 गाँव
+                मीणा जाति सेवा संस्थान • 52 गाँव
               </p>
 
               <p className="text-gray-400 text-xs mt-1">
